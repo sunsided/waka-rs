@@ -6,7 +6,7 @@ pub async fn main() -> Result<(), Box<dyn Error>> {
     dotenvy::dotenv().ok();
     let api_key = std::env::var("WAKATIME_API_KEY").expect("Missing WAKATIME_API_KEY variable");
 
-    let client = WakaTimeClientBuilder::with_api_key(api_key)
+    let client = WakaTimeClientBuilder::new_with_api_key(api_key)
         .with_user("sunside")
         .build()?;
 

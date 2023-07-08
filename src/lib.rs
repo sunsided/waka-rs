@@ -9,7 +9,7 @@
 //!
 //! # async fn test() -> Result<(), Box<dyn std::error::Error>> {
 //! let api_key = std::env::var("WAKATIME_API_KEY")?;
-//! let client = WakaTimeClientBuilder::with_api_key(api_key)
+//! let client = WakaTimeClientBuilder::new_with_api_key(api_key)
 //!     .with_user("current")
 //!     .build()?;
 //!
@@ -21,39 +21,45 @@
 //! ```
 
 mod api_error;
+mod builder_error;
 pub mod model;
 
-use crate::api_error::ApiError;
+pub use crate::api_error::ApiError;
+pub use crate::builder_error::BuilderError;
 use base64::Engine;
 use query_string_builder::QueryString;
 use reqwest::header::HeaderValue;
 use reqwest::{header, Client, ClientBuilder, Response};
 use serde::{Deserialize, Serialize};
-use std::error::Error;
 
 static BASE_URL: &'static str = "https://wakatime.com/api/v1/";
+const CURRENT_USER: &'static str = "current";
 
+/// A builder for [`WakaTimeClient`] instances.
 #[derive(Default)]
 pub struct WakaTimeClientBuilder {
+    /// The API key, base-64 encoded.
     api_key_base64: String,
+    /// The optional user to use.
     user: Option<String>,
 }
 
 impl WakaTimeClientBuilder {
     /// See [wakatime.com/api-key](https://wakatime.com/api-key).
-    pub fn with_api_key<S: AsRef<str>>(api_key: S) -> Self {
+    pub fn new_with_api_key<S: AsRef<str>>(api_key: S) -> Self {
         Self {
             api_key_base64: base64::engine::general_purpose::STANDARD.encode(api_key.as_ref()),
             ..Default::default()
         }
     }
 
+    /// Specifies a user to focus on. If unspecified, `current` is used.
     pub fn with_user<S: AsRef<str>>(mut self, user: S) -> Self {
         self.user = Some(user.as_ref().to_string());
         self
     }
 
-    pub fn build(self) -> Result<WakaTimeClient, Box<dyn Error>> {
+    pub fn build(self) -> Result<WakaTimeClient, BuilderError> {
         let mut headers = header::HeaderMap::new();
         let authorize = format!("Basic {api_key}", api_key = self.api_key_base64);
         headers.insert("authorization", HeaderValue::from_str(&authorize)?);
@@ -62,13 +68,16 @@ impl WakaTimeClientBuilder {
 
         Ok(WakaTimeClient {
             client,
-            user: self.user.unwrap_or("current".to_string()),
+            user: self.user.unwrap_or(CURRENT_USER.to_string()),
         })
     }
 }
 
+/// A client for accessing the WakaTime API.
 pub struct WakaTimeClient {
+    /// The HTTP client to use.
     client: Client,
+    /// The user to use.
     user: String,
 }
 
@@ -79,7 +88,7 @@ impl WakaTimeClient {
         &self,
         options: AllTimesSinceTodayOptions<'a>,
     ) -> Result<model::all_times_since_today::AllTimeSinceToday, ApiError> {
-        let qs = QueryString::new().with_opt_value("project", options.project);
+        let qs = options.into_query_string();
         let url = format!(
             "{BASE_URL}users/{user}/all_time_since_today{qs}",
             user = self.user
@@ -100,7 +109,7 @@ impl WakaTimeClient {
         hash: &str,
         options: CommitOptions<'a>,
     ) -> Result<model::commit::CommitResponse, ApiError> {
-        let qs = QueryString::new().with_opt_value("branch", options.branch);
+        let qs = options.into_query_string();
         let url = format!(
             "{BASE_URL}users/{user}/projects/{project}/commits/{hash}{qs}",
             user = self.user
@@ -117,17 +126,10 @@ impl WakaTimeClient {
         end: &str,
         options: SummariesOptions<'a>,
     ) -> Result<model::summaries::Summaries, ApiError> {
-        let timeout = options.timeout.map(|v| v.to_string());
-        let writes_only = options.writes_only.map(|v| v.to_string());
-        let qs = QueryString::new()
+        let qs = options
+            .into_query_string()
             .with_value("start", start)
-            .with_value("end", end)
-            .with_opt_value("project", options.project)
-            .with_opt_value("branches", options.branches)
-            .with_opt_value("timeout", timeout.as_deref())
-            .with_opt_value("writes_only", writes_only.as_deref())
-            .with_opt_value("timezone", options.timezone)
-            .with_opt_value("range", options.range);
+            .with_value("end", end);
         let url = format!("{BASE_URL}users/{user}/summaries{qs}", user = self.user);
         let response = self.client.get(url).send().await?;
         Self::deserialize_as(response, |r| r).await
@@ -164,14 +166,30 @@ pub struct DataWrapper<T> {
     data: T,
 }
 
+trait IntoQueryString {
+    fn into_query_string(self) -> QueryString;
+}
+
 #[derive(Debug, Default, Clone)]
 pub struct AllTimesSinceTodayOptions<'a> {
     pub project: Option<&'a str>,
 }
 
+impl<'a> IntoQueryString for AllTimesSinceTodayOptions<'a> {
+    fn into_query_string(self) -> QueryString {
+        QueryString::new().with_opt_value("project", self.project)
+    }
+}
+
 #[derive(Debug, Default, Clone)]
 pub struct CommitOptions<'a> {
     pub branch: Option<&'a str>,
+}
+
+impl<'a> IntoQueryString for CommitOptions<'a> {
+    fn into_query_string(self) -> QueryString {
+        QueryString::new().with_opt_value("branch", self.branch)
+    }
 }
 
 #[derive(Debug, Default, Clone)]
@@ -182,4 +200,16 @@ pub struct SummariesOptions<'a> {
     pub writes_only: Option<bool>,
     pub timezone: Option<&'a str>,
     pub range: Option<&'a str>,
+}
+
+impl<'a> IntoQueryString for SummariesOptions<'a> {
+    fn into_query_string(self) -> QueryString {
+        QueryString::new()
+            .with_opt_value("project", self.project)
+            .with_opt_value("branches", self.branches)
+            .with_opt_value("timeout", self.timeout.map(|v| v.to_string()))
+            .with_opt_value("writes_only", self.writes_only.map(|v| v.to_string()))
+            .with_opt_value("timezone", self.timezone)
+            .with_opt_value("range", self.range)
+    }
 }
