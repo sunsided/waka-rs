@@ -16,16 +16,7 @@ pub async fn main() -> Result<(), Box<dyn Error>> {
         .build()?;
 
     let summary = client
-        .summaries(
-            "2023-01-01",
-            "2023-01-08",
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-        )
+        .summaries("2023-01-01", "2023-01-08", SummariesOptions::default())
         .await?;
     println!("{summary:?}");
 

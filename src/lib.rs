@@ -5,7 +5,7 @@
 //! This is a work in progress and the API may change over time.
 //!
 //! ```no_run
-//! use waka::WakaTimeClientBuilder;
+//! use waka::{SummariesOptions, WakaTimeClientBuilder};
 //!
 //! # async fn test() -> Result<(), Box<dyn std::error::Error>> {
 //! let api_key = std::env::var("WAKATIME_API_KEY")?;
@@ -14,16 +14,8 @@
 //!     .build()?;
 //!
 //! let summary = client
-//!     .summaries(
-//!         "2023-01-01",
-//!         "2023-01-08",
-//!         None,
-//!         None,
-//!         None,
-//!         None,
-//!         None,
-//!         None,
-//!     ).await?;
+//!     .summaries("2023-01-01", "2023-01-08", SummariesOptions::default())
+//!     .await?;
 //! # Ok(())
 //! # }
 //! ```
@@ -83,11 +75,11 @@ pub struct WakaTimeClient {
 impl WakaTimeClient {
     /// ## Documentation
     /// * [All Time Since Today](https://wakatime.com/developers#all_time_since_today)
-    pub async fn all_time_since_today(
+    pub async fn all_time_since_today<'a>(
         &self,
-        project: Option<&str>,
+        options: AllTimesSinceTodayOptions<'a>,
     ) -> Result<model::all_times_since_today::AllTimeSinceToday, ApiError> {
-        let qs = QueryString::new().with_opt_value("project", project);
+        let qs = QueryString::new().with_opt_value("project", options.project);
         let url = format!(
             "{BASE_URL}users/{user}/all_time_since_today{qs}",
             user = self.user
@@ -102,13 +94,13 @@ impl WakaTimeClient {
 
     /// ## Documentation
     /// * [Commits](https://wakatime.com/developers#commits)
-    pub async fn commit(
+    pub async fn commit<'a>(
         &self,
         project: &str,
         hash: &str,
-        branch: Option<&str>,
+        options: CommitOptions<'a>,
     ) -> Result<model::commit::CommitResponse, ApiError> {
-        let qs = QueryString::new().with_opt_value("branch", branch);
+        let qs = QueryString::new().with_opt_value("branch", options.branch);
         let url = format!(
             "{BASE_URL}users/{user}/projects/{project}/commits/{hash}{qs}",
             user = self.user
@@ -119,28 +111,23 @@ impl WakaTimeClient {
 
     /// ## Documentation
     /// * [Summaries](https://wakatime.com/developers#summaries)
-    pub async fn summaries(
+    pub async fn summaries<'a>(
         &self,
         start: &str,
         end: &str,
-        project: Option<&str>,
-        branches: Option<&str>,
-        timeout: Option<u32>,
-        writes_only: Option<bool>,
-        timezone: Option<&str>,
-        range: Option<&str>,
+        options: SummariesOptions<'a>,
     ) -> Result<model::summaries::Summaries, ApiError> {
-        let timeout = timeout.map(|v| v.to_string());
-        let writes_only = writes_only.map(|v| v.to_string());
+        let timeout = options.timeout.map(|v| v.to_string());
+        let writes_only = options.writes_only.map(|v| v.to_string());
         let qs = QueryString::new()
             .with_value("start", start)
             .with_value("end", end)
-            .with_opt_value("project", project)
-            .with_opt_value("branches", branches)
+            .with_opt_value("project", options.project)
+            .with_opt_value("branches", options.branches)
             .with_opt_value("timeout", timeout.as_deref())
             .with_opt_value("writes_only", writes_only.as_deref())
-            .with_opt_value("timezone", timezone)
-            .with_opt_value("range", range);
+            .with_opt_value("timezone", options.timezone)
+            .with_opt_value("range", options.range);
         let url = format!("{BASE_URL}users/{user}/summaries{qs}", user = self.user);
         let response = self.client.get(url).send().await?;
         Self::deserialize_as(response, |r| r).await
@@ -175,4 +162,24 @@ pub struct ErrorsResponse {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DataWrapper<T> {
     data: T,
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct AllTimesSinceTodayOptions<'a> {
+    pub project: Option<&'a str>,
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct CommitOptions<'a> {
+    pub branch: Option<&'a str>,
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct SummariesOptions<'a> {
+    pub project: Option<&'a str>,
+    pub branches: Option<&'a str>,
+    pub timeout: Option<u32>,
+    pub writes_only: Option<bool>,
+    pub timezone: Option<&'a str>,
+    pub range: Option<&'a str>,
 }
