@@ -1,9 +1,11 @@
+//! Contains the models for [`WakaTimeClient::commit`](crate::WakaTimeClient::commit).
+
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct CommitResponse {
+pub struct Commits {
     pub commit: Commit,
-    /// Branch name containting the commit.
+    /// Branch name containing the commit.
     pub branch: String,
     pub project: Project,
     /// Project's sync status.

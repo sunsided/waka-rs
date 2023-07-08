@@ -87,18 +87,14 @@ impl WakaTimeClient {
     pub async fn all_time_since_today<'a>(
         &self,
         options: AllTimesSinceTodayOptions<'a>,
-    ) -> Result<model::all_times_since_today::AllTimeSinceToday, ApiError> {
+    ) -> Result<model::AllTimeSinceToday, ApiError> {
         let qs = options.into_query_string();
         let url = format!(
             "{BASE_URL}users/{user}/all_time_since_today{qs}",
             user = self.user
         );
         let response = self.client.get(url).send().await?;
-        Self::deserialize_as(
-            response,
-            |r: DataWrapper<model::all_times_since_today::AllTimeSinceToday>| r.data,
-        )
-        .await
+        Self::deserialize_as(response, |r: DataWrapper<model::AllTimeSinceToday>| r.data).await
     }
 
     /// ## Documentation
@@ -108,7 +104,7 @@ impl WakaTimeClient {
         project: &str,
         hash: &str,
         options: CommitOptions<'a>,
-    ) -> Result<model::commit::CommitResponse, ApiError> {
+    ) -> Result<model::Commits, ApiError> {
         let qs = options.into_query_string();
         let url = format!(
             "{BASE_URL}users/{user}/projects/{project}/commits/{hash}{qs}",
@@ -125,7 +121,7 @@ impl WakaTimeClient {
         start: &str,
         end: &str,
         options: SummariesOptions<'a>,
-    ) -> Result<model::summaries::Summaries, ApiError> {
+    ) -> Result<model::Summaries, ApiError> {
         let qs = options
             .into_query_string()
             .with_value("start", start)

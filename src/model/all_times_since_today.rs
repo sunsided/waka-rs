@@ -1,3 +1,5 @@
+//! Contains the models for [`WakaTimeClient::all_time_since_today`](crate::WakaTimeClient::all_time_since_today).
+
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
