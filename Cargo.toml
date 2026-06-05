@@ -1,6 +1,6 @@
 [package]
 name = "waka"
-description = "Client for WakaTime API, a work in progress"
+description = "Client for the WakaTime API"
 authors = ["Markus Mayer"]
 version = "0.2.0"
 edition = "2024"
@@ -8,6 +8,8 @@ rust-version = "1.86"
 readme = "README.md"
 license = "EUPL-1.2"
 repository = "https://github.com/sunsided/waka-rs"
+keywords = ["wakatime", "api-client", "statistics", "time-tracking"]
+categories = ["api-bindings", "web-programming::http-client"]
 
 [dependencies]
 base64 = "0.22"

@@ -1,6 +1,13 @@
 # WakaTime client for Rust
 
-A client to fetch your coding statistics from [WakaTime](https://wakatime.com/) given your API key.
+[![Crates.io](https://img.shields.io/crates/v/waka)](https://crates.io/crates/waka)
+[![docs.rs](https://img.shields.io/docsrs/waka)](https://docs.rs/waka)
+[![CI](https://github.com/sunsided/waka-rs/actions/workflows/rust.yml/badge.svg)](https://github.com/sunsided/waka-rs/actions/workflows/rust.yml)
+[![License: EUPL-1.2](https://img.shields.io/badge/license-EUPL--1.2-blue)](LICENSE.md)
+
+A client for the [WakaTime](https://wakatime.com/) API, covering every documented
+endpoint — coding statistics, summaries, durations, heartbeats, goals, insights,
+leaderboards, organizations, and the write operations.
 
 ## Supported endpoints
 

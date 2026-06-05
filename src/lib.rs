@@ -1,8 +1,11 @@
 //! # WakaTime API client
 //!
-//! A client to fetch your coding statistics from [WakaTime](https://wakatime.com/) given your API key.
+//! A client for the [WakaTime](https://wakatime.com/) API, covering every
+//! documented endpoint: coding statistics, summaries, durations, heartbeats,
+//! goals, insights, leaderboards, organizations, and the write operations.
 //!
-//! This is a work in progress and the API may change over time.
+//! Authenticate with an API key ([`WakaTimeClientBuilder::new_with_api_key`])
+//! or an OAuth 2.0 access token ([`WakaTimeClientBuilder::new_with_bearer_token`]).
 //!
 //! ```no_run
 //! use waka::{SummariesOptions, WakaTimeClientBuilder};
