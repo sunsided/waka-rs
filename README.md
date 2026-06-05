@@ -17,6 +17,11 @@ A client to fetch your coding statistics from [WakaTime](https://wakatime.com/) 
 - [Leaders](https://wakatime.com/developers#leaders) — `leaders`
 - [Machine Names](https://wakatime.com/developers#machine_names) — `machine_names`
 - [Meta](https://wakatime.com/developers#meta) — `meta`
+- [Orgs](https://wakatime.com/developers#orgs) — `orgs`
+- [Org Custom Rules](https://wakatime.com/developers#org_custom_rules) — `org_custom_rules`
+- [Org Dashboards](https://wakatime.com/developers#org_dashboards) — `org_dashboards`, `org_dashboard_members`
+- [Org Dashboard Durations](https://wakatime.com/developers#org_dashboard_durations) — `org_dashboard_durations`, `org_dashboard_member_durations`
+- [Org Dashboard Summaries](https://wakatime.com/developers#org_dashboard_summaries) — `org_dashboard_summaries`, `org_dashboard_member_summaries`
 - [Private Leaderboards](https://wakatime.com/developers#private_leaderboards) — `private_leaderboards`, `private_leaderboard_leaders`
 - [Program Languages](https://wakatime.com/developers#program_languages) — `program_languages`
 - [Projects](https://wakatime.com/developers#projects) — `projects`
@@ -27,8 +32,8 @@ A client to fetch your coding statistics from [WakaTime](https://wakatime.com/) 
 - [User Agents](https://wakatime.com/developers#user_agents) — `user_agents`
 - [Users](https://wakatime.com/developers#users) — `user`
 
-Write endpoints (posting heartbeats, managing custom rules) and the
-organization dashboards are not implemented.
+Write endpoints (posting heartbeats, managing custom rules, requesting
+data dumps) are not implemented.
 
 ## Usage
 

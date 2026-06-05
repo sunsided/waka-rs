@@ -346,6 +346,140 @@ impl WakaTimeClient {
     }
 
     /// ## Documentation
+    /// * [Orgs](https://wakatime.com/developers#orgs)
+    pub async fn orgs(&self) -> Result<model::Orgs, ApiError> {
+        let url = format!(
+            "{base_url}users/{user}/orgs",
+            base_url = self.base_url,
+            user = self.user
+        );
+        let response = self.client.get(url).send().await?;
+        Self::deserialize_as(response, |r| r).await
+    }
+
+    /// ## Documentation
+    /// * [Org Custom Rules](https://wakatime.com/developers#org_custom_rules)
+    pub async fn org_custom_rules(&self, org: &str) -> Result<model::OrgCustomRules, ApiError> {
+        let url = format!(
+            "{base_url}users/{user}/orgs/{org}/custom_rules",
+            base_url = self.base_url,
+            user = self.user
+        );
+        let response = self.client.get(url).send().await?;
+        Self::deserialize_as(response, |r| r).await
+    }
+
+    /// ## Documentation
+    /// * [Org Dashboards](https://wakatime.com/developers#org_dashboards)
+    pub async fn org_dashboards(&self, org: &str) -> Result<model::OrgDashboards, ApiError> {
+        let url = format!(
+            "{base_url}users/{user}/orgs/{org}/dashboards",
+            base_url = self.base_url,
+            user = self.user
+        );
+        let response = self.client.get(url).send().await?;
+        Self::deserialize_as(response, |r| r).await
+    }
+
+    /// ## Documentation
+    /// * [Org Dashboard Members](https://wakatime.com/developers#org_dashboard_members)
+    pub async fn org_dashboard_members(
+        &self,
+        org: &str,
+        dashboard: &str,
+    ) -> Result<model::OrgDashboardMembers, ApiError> {
+        let url = format!(
+            "{base_url}users/{user}/orgs/{org}/dashboards/{dashboard}/members",
+            base_url = self.base_url,
+            user = self.user
+        );
+        let response = self.client.get(url).send().await?;
+        Self::deserialize_as(response, |r| r).await
+    }
+
+    /// ## Documentation
+    /// * [Org Dashboard Durations](https://wakatime.com/developers#org_dashboard_durations)
+    pub async fn org_dashboard_durations<'a>(
+        &self,
+        org: &str,
+        dashboard: &str,
+        date: &str,
+        options: OrgDurationsOptions<'a>,
+    ) -> Result<model::OrgDashboardDurations, ApiError> {
+        let qs = options.into_query_string().with_value("date", date);
+        let url = format!(
+            "{base_url}users/{user}/orgs/{org}/dashboards/{dashboard}/durations{qs}",
+            base_url = self.base_url,
+            user = self.user
+        );
+        let response = self.client.get(url).send().await?;
+        Self::deserialize_as(response, |r| r).await
+    }
+
+    /// ## Documentation
+    /// * [Org Dashboard Summaries](https://wakatime.com/developers#org_dashboard_summaries)
+    pub async fn org_dashboard_summaries<'a>(
+        &self,
+        org: &str,
+        dashboard: &str,
+        date: &str,
+        options: OrgSummariesOptions<'a>,
+    ) -> Result<model::OrgDashboardSummaries, ApiError> {
+        let qs = options.into_query_string().with_value("date", date);
+        let url = format!(
+            "{base_url}users/{user}/orgs/{org}/dashboards/{dashboard}/summaries{qs}",
+            base_url = self.base_url,
+            user = self.user
+        );
+        let response = self.client.get(url).send().await?;
+        Self::deserialize_as(response, |r| r).await
+    }
+
+    /// ## Documentation
+    /// * [Org Dashboard Member Durations](https://wakatime.com/developers#org_dashboard_member_durations)
+    pub async fn org_dashboard_member_durations<'a>(
+        &self,
+        org: &str,
+        dashboard: &str,
+        member: &str,
+        date: &str,
+        options: OrgDurationsOptions<'a>,
+    ) -> Result<model::Durations, ApiError> {
+        let qs = options.into_query_string().with_value("date", date);
+        let url = format!(
+            "{base_url}users/{user}/orgs/{org}/dashboards/{dashboard}/members/{member}/durations{qs}",
+            base_url = self.base_url,
+            user = self.user
+        );
+        let response = self.client.get(url).send().await?;
+        Self::deserialize_as(response, |r| r).await
+    }
+
+    /// ## Documentation
+    /// * [Org Dashboard Member Summaries](https://wakatime.com/developers#org_dashboard_member_summaries)
+    pub async fn org_dashboard_member_summaries<'a>(
+        &self,
+        org: &str,
+        dashboard: &str,
+        member: &str,
+        start: &str,
+        end: &str,
+        options: OrgMemberSummariesOptions<'a>,
+    ) -> Result<model::OrgMemberSummaries, ApiError> {
+        let qs = options
+            .into_query_string()
+            .with_value("start", start)
+            .with_value("end", end);
+        let url = format!(
+            "{base_url}users/{user}/orgs/{org}/dashboards/{dashboard}/members/{member}/summaries{qs}",
+            base_url = self.base_url,
+            user = self.user
+        );
+        let response = self.client.get(url).send().await?;
+        Self::deserialize_as(response, |r| r).await
+    }
+
+    /// ## Documentation
     /// * [Private Leaderboards](https://wakatime.com/developers#private_leaderboards)
     pub async fn private_leaderboards(&self) -> Result<model::PrivateLeaderboards, ApiError> {
         let url = format!(
@@ -644,6 +778,60 @@ impl<'a> IntoQueryString for LeadersOptions<'a> {
             .with_opt_value("is_hireable", self.is_hireable.map(|v| v.to_string()))
             .with_opt_value("country_code", self.country_code)
             .with_opt_value("page", self.page.map(|v| v.to_string()))
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct OrgDurationsOptions<'a> {
+    /// Only show durations for this project.
+    pub project: Option<&'a str>,
+    /// Only show durations for these branches; comma separated list of branch names.
+    pub branches: Option<&'a str>,
+    /// Optional primary key to use when slicing durations; defaults to `entity`.
+    pub slice_by: Option<&'a str>,
+}
+
+impl<'a> IntoQueryString for OrgDurationsOptions<'a> {
+    fn into_query_string(self) -> QueryString {
+        QueryString::dynamic()
+            .with_opt_value("project", self.project)
+            .with_opt_value("branches", self.branches)
+            .with_opt_value("slice_by", self.slice_by)
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct OrgSummariesOptions<'a> {
+    /// Only show summaries for this project.
+    pub project: Option<&'a str>,
+    /// Only show summaries for these branches; comma separated list of branch names.
+    pub branches: Option<&'a str>,
+}
+
+impl<'a> IntoQueryString for OrgSummariesOptions<'a> {
+    fn into_query_string(self) -> QueryString {
+        QueryString::dynamic()
+            .with_opt_value("project", self.project)
+            .with_opt_value("branches", self.branches)
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct OrgMemberSummariesOptions<'a> {
+    /// Only show summaries for this project.
+    pub project: Option<&'a str>,
+    /// Only show summaries for these branches; comma separated list of branch names.
+    pub branches: Option<&'a str>,
+    /// Alternative way to supply start and end dates, e.g. `Last 7 Days`.
+    pub range: Option<&'a str>,
+}
+
+impl<'a> IntoQueryString for OrgMemberSummariesOptions<'a> {
+    fn into_query_string(self) -> QueryString {
+        QueryString::dynamic()
+            .with_opt_value("project", self.project)
+            .with_opt_value("branches", self.branches)
+            .with_opt_value("range", self.range)
     }
 }
 

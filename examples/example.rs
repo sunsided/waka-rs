@@ -101,5 +101,13 @@ pub async fn main() -> Result<(), Box<dyn Error>> {
         .await?;
     println!("{external_durations:?}");
 
+    let orgs = client.orgs().await?;
+    println!("{orgs:?}");
+
+    for org in &orgs.data {
+        let dashboards = client.org_dashboards(&org.id).await?;
+        println!("{dashboards:?}");
+    }
+
     Ok(())
 }
