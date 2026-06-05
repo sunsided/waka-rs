@@ -5,14 +5,14 @@ A client to fetch your coding statistics from [WakaTime](https://wakatime.com/) 
 ## Supported endpoints
 
 - [All Time Since Today](https://wakatime.com/developers#all_time_since_today) — `all_time_since_today`
-- [Commits](https://wakatime.com/developers#commits) — `commit` (single), `commits` (paginated list)
-- [Custom Rules](https://wakatime.com/developers#custom_rules) — `custom_rules`, `custom_rules_progress`
-- [Data Dumps](https://wakatime.com/developers#data_dumps) — `data_dumps`
+- [Commits](https://wakatime.com/developers#commits) — `commit` (single), `commits` (paginated list), `commits_all`
+- [Custom Rules](https://wakatime.com/developers#custom_rules) — `custom_rules`, `custom_rules_progress`, `set_custom_rules`, `delete_custom_rule`, `delete_custom_rules_progress`
+- [Data Dumps](https://wakatime.com/developers#data_dumps) — `data_dumps`, `create_data_dump`
 - [Durations](https://wakatime.com/developers#durations) — `durations`
 - [Editors](https://wakatime.com/developers#editors) — `editors`
-- [External Durations](https://wakatime.com/developers#external_durations) — `external_durations`
+- [External Durations](https://wakatime.com/developers#external_durations) — `external_durations`, `send_external_duration(s)`, `delete_external_durations`
 - [Goals](https://wakatime.com/developers#goals) — `goals` (list), `goal` (single)
-- [Heartbeats](https://wakatime.com/developers#heartbeats) — `heartbeats`
+- [Heartbeats](https://wakatime.com/developers#heartbeats) — `heartbeats`, `send_heartbeat(s)`, `delete_heartbeats`
 - [Insights](https://wakatime.com/developers#insights) — `insights`
 - [Leaders](https://wakatime.com/developers#leaders) — `leaders`
 - [Machine Names](https://wakatime.com/developers#machine_names) — `machine_names`
@@ -24,7 +24,7 @@ A client to fetch your coding statistics from [WakaTime](https://wakatime.com/) 
 - [Org Dashboard Summaries](https://wakatime.com/developers#org_dashboard_summaries) — `org_dashboard_summaries`, `org_dashboard_member_summaries`
 - [Private Leaderboards](https://wakatime.com/developers#private_leaderboards) — `private_leaderboards`, `private_leaderboard_leaders`
 - [Program Languages](https://wakatime.com/developers#program_languages) — `program_languages`
-- [Projects](https://wakatime.com/developers#projects) — `projects`
+- [Projects](https://wakatime.com/developers#projects) — `projects`, `projects_all`
 - [Stats](https://wakatime.com/developers#stats) — `stats`
 - [Stats Aggregated](https://wakatime.com/developers#stats_aggregated) — `stats_aggregated`
 - [Status Bar](https://wakatime.com/developers#status_bar) — `status_bar_today`
@@ -32,8 +32,9 @@ A client to fetch your coding statistics from [WakaTime](https://wakatime.com/) 
 - [User Agents](https://wakatime.com/developers#user_agents) — `user_agents`
 - [Users](https://wakatime.com/developers#users) — `user`
 
-Write endpoints (posting heartbeats, managing custom rules, requesting
-data dumps) are not implemented.
+Authentication works with an API key (`new_with_api_key`) or an OAuth 2.0
+access token (`new_with_bearer_token`). The write endpoints are tested
+against mocks only; their request shapes follow the developer docs.
 
 ## Usage
 

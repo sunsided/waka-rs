@@ -52,3 +52,45 @@ pub struct CustomRulesProgress {
     /// Id of the background job.
     pub job_id: Option<String>,
 }
+
+/// A custom rule to create or update via
+/// [`WakaTimeClient::set_custom_rules`](crate::WakaTimeClient::set_custom_rules).
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+pub struct CustomRuleInput {
+    /// Unique id of an existing rule to update; omit to create a new rule.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<String>,
+    /// What the rule does with matching activity: `change` or `delete`.
+    pub action: String,
+    /// The attribute matched against, e.g. `project` or `entity`.
+    pub source: String,
+    /// How the source is matched: `equals`, `contains`, `starts with` or `ends with`.
+    pub operation: String,
+    /// The value the source is matched against.
+    pub source_value: String,
+    /// The attribute modified when the rule matches.
+    pub destination: String,
+    /// The new value for the attribute.
+    pub destination_value: String,
+    /// Order in which this rule is applied.
+    pub priority: i64,
+}
+
+/// The result of replacing the custom rules.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CustomRulesChanges {
+    /// The applied changes.
+    pub changes: Option<CustomRulesChangeSet>,
+    /// Id of the background job applying the changes, if one was started.
+    pub job_id: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CustomRulesChangeSet {
+    /// Rules that were added.
+    pub added: Option<Vec<serde_json::Value>>,
+    /// Rules that were removed.
+    pub removed: Option<Vec<serde_json::Value>>,
+    /// Rules whose priority changed.
+    pub rearranged: Option<Vec<serde_json::Value>>,
+}

@@ -38,19 +38,34 @@ const CURRENT_USER: &str = "current";
 /// A builder for [`WakaTimeClient`] instances.
 #[derive(Default)]
 pub struct WakaTimeClientBuilder {
-    /// The API key, base-64 encoded.
-    api_key_base64: String,
+    /// The value of the `Authorization` header.
+    auth_header: String,
     /// The optional user to use.
     user: Option<String>,
     /// The optional base URL to use instead of the default WakaTime API URL.
     base_url: Option<String>,
+    /// The optional request timeout.
+    timeout: Option<std::time::Duration>,
 }
 
 impl WakaTimeClientBuilder {
+    /// Authenticates with an API key using HTTP Basic auth.
     /// See [wakatime.com/api-key](https://wakatime.com/api-key).
     pub fn new_with_api_key<S: AsRef<str>>(api_key: S) -> Self {
         Self {
-            api_key_base64: base64::engine::general_purpose::STANDARD.encode(api_key.as_ref()),
+            auth_header: format!(
+                "Basic {api_key}",
+                api_key = base64::engine::general_purpose::STANDARD.encode(api_key.as_ref())
+            ),
+            ..Default::default()
+        }
+    }
+
+    /// Authenticates with an OAuth 2.0 access token using Bearer auth.
+    /// See [wakatime.com/developers#authentication](https://wakatime.com/developers#authentication).
+    pub fn new_with_bearer_token<S: AsRef<str>>(token: S) -> Self {
+        Self {
+            auth_header: format!("Bearer {token}", token = token.as_ref()),
             ..Default::default()
         }
     }
@@ -58,6 +73,13 @@ impl WakaTimeClientBuilder {
     /// Specifies a user to focus on. If unspecified, `current` is used.
     pub fn with_user<S: AsRef<str>>(mut self, user: S) -> Self {
         self.user = Some(user.as_ref().to_string());
+        self
+    }
+
+    /// Sets a timeout for each request, from connecting until the response
+    /// body has finished. If unspecified, no timeout applies.
+    pub fn with_timeout(mut self, timeout: std::time::Duration) -> Self {
+        self.timeout = Some(timeout);
         self
     }
 
@@ -76,10 +98,13 @@ impl WakaTimeClientBuilder {
 
     pub fn build(self) -> Result<WakaTimeClient, BuilderError> {
         let mut headers = header::HeaderMap::new();
-        let authorize = format!("Basic {api_key}", api_key = self.api_key_base64);
-        headers.insert("authorization", HeaderValue::from_str(&authorize)?);
+        headers.insert("authorization", HeaderValue::from_str(&self.auth_header)?);
 
-        let client = ClientBuilder::new().default_headers(headers).build()?;
+        let mut builder = ClientBuilder::new().default_headers(headers);
+        if let Some(timeout) = self.timeout {
+            builder = builder.timeout(timeout);
+        }
+        let client = builder.build()?;
 
         Ok(WakaTimeClient {
             client,
@@ -202,6 +227,181 @@ impl WakaTimeClient {
         Self::deserialize_as(response, |r| r).await
     }
 
+    /// Sends a single heartbeat representing coding activity.
+    ///
+    /// ## Documentation
+    /// * [Heartbeats](https://wakatime.com/developers#heartbeats)
+    pub async fn send_heartbeat(
+        &self,
+        heartbeat: &model::HeartbeatInput,
+    ) -> Result<model::CreatedHeartbeat, ApiError> {
+        let url = format!(
+            "{base_url}users/{user}/heartbeats",
+            base_url = self.base_url,
+            user = self.user
+        );
+        let response = self.client.post(url).json(heartbeat).send().await?;
+        Self::deserialize_as(response, |r: DataWrapper<model::CreatedHeartbeat>| r.data).await
+    }
+
+    /// Sends multiple heartbeats at once; at most 25 per request.
+    ///
+    /// The per-heartbeat results are returned as raw JSON since their shape
+    /// is not fully documented.
+    ///
+    /// ## Documentation
+    /// * [Heartbeats](https://wakatime.com/developers#heartbeats)
+    pub async fn send_heartbeats(
+        &self,
+        heartbeats: &[model::HeartbeatInput],
+    ) -> Result<serde_json::Value, ApiError> {
+        let url = format!(
+            "{base_url}users/{user}/heartbeats.bulk",
+            base_url = self.base_url,
+            user = self.user
+        );
+        let response = self.client.post(url).json(heartbeats).send().await?;
+        Self::deserialize_as(response, |r| r).await
+    }
+
+    /// Deletes the given heartbeats; all ids must be from the given day.
+    ///
+    /// ## Documentation
+    /// * [Heartbeats](https://wakatime.com/developers#heartbeats)
+    pub async fn delete_heartbeats(&self, date: &str, ids: &[&str]) -> Result<(), ApiError> {
+        let url = format!(
+            "{base_url}users/{user}/heartbeats.bulk",
+            base_url = self.base_url,
+            user = self.user
+        );
+        let body = serde_json::json!({ "date": date, "ids": ids });
+        let response = self.client.delete(url).json(&body).send().await?;
+        Self::deserialize_as(response, |_: serde_json::Value| ()).await
+    }
+
+    /// Logs time spent in an external app, e.g. a meeting or code review.
+    ///
+    /// ## Documentation
+    /// * [External Durations](https://wakatime.com/developers#external_durations)
+    pub async fn send_external_duration(
+        &self,
+        duration: &model::ExternalDurationInput,
+    ) -> Result<model::ExternalDuration, ApiError> {
+        let url = format!(
+            "{base_url}users/{user}/external_durations",
+            base_url = self.base_url,
+            user = self.user
+        );
+        let response = self.client.post(url).json(duration).send().await?;
+        Self::deserialize_as(response, |r: DataWrapper<model::ExternalDuration>| r.data).await
+    }
+
+    /// Logs multiple external durations at once; at most 1000 per request.
+    ///
+    /// The per-duration results are returned as raw JSON since their shape
+    /// is not fully documented.
+    ///
+    /// ## Documentation
+    /// * [External Durations](https://wakatime.com/developers#external_durations)
+    pub async fn send_external_durations(
+        &self,
+        durations: &[model::ExternalDurationInput],
+    ) -> Result<serde_json::Value, ApiError> {
+        let url = format!(
+            "{base_url}users/{user}/external_durations.bulk",
+            base_url = self.base_url,
+            user = self.user
+        );
+        let response = self.client.post(url).json(durations).send().await?;
+        Self::deserialize_as(response, |r| r).await
+    }
+
+    /// Deletes the given external durations; all ids must be from the given day.
+    ///
+    /// ## Documentation
+    /// * [External Durations](https://wakatime.com/developers#external_durations)
+    pub async fn delete_external_durations(
+        &self,
+        date: &str,
+        ids: &[&str],
+    ) -> Result<(), ApiError> {
+        let url = format!(
+            "{base_url}users/{user}/external_durations.bulk",
+            base_url = self.base_url,
+            user = self.user
+        );
+        let body = serde_json::json!({ "date": date, "ids": ids });
+        let response = self.client.delete(url).json(&body).send().await?;
+        Self::deserialize_as(response, |_: serde_json::Value| ()).await
+    }
+
+    /// Requests a data dump export; the API emails the user when it is ready.
+    ///
+    /// ## Documentation
+    /// * [Data Dumps](https://wakatime.com/developers#data_dumps)
+    pub async fn create_data_dump(
+        &self,
+        dump_type: &str,
+        email_when_finished: Option<bool>,
+    ) -> Result<model::DataDump, ApiError> {
+        let url = format!(
+            "{base_url}users/{user}/data_dumps",
+            base_url = self.base_url,
+            user = self.user
+        );
+        let mut body = serde_json::json!({ "type": dump_type });
+        if let Some(email) = email_when_finished {
+            body["email_when_finished"] = serde_json::Value::Bool(email);
+        }
+        let response = self.client.post(url).json(&body).send().await?;
+        Self::deserialize_as(response, |r: DataWrapper<model::DataDump>| r.data).await
+    }
+
+    /// Replaces the user's custom rules with the given rules.
+    ///
+    /// ## Documentation
+    /// * [Custom Rules](https://wakatime.com/developers#custom_rules)
+    pub async fn set_custom_rules(
+        &self,
+        rules: &[model::CustomRuleInput],
+    ) -> Result<model::CustomRulesChanges, ApiError> {
+        let url = format!(
+            "{base_url}users/{user}/custom_rules",
+            base_url = self.base_url,
+            user = self.user
+        );
+        let response = self.client.put(url).json(rules).send().await?;
+        Self::deserialize_as(response, |r: DataWrapper<model::CustomRulesChanges>| r.data).await
+    }
+
+    /// Deletes a custom rule.
+    ///
+    /// ## Documentation
+    /// * [Custom Rules](https://wakatime.com/developers#custom_rules)
+    pub async fn delete_custom_rule(&self, rule_id: &str) -> Result<(), ApiError> {
+        let url = format!(
+            "{base_url}users/{user}/custom_rules/{rule_id}",
+            base_url = self.base_url,
+            user = self.user
+        );
+        let response = self.client.delete(url).send().await?;
+        Self::deserialize_as(response, |_: serde_json::Value| ()).await
+    }
+
+    /// Clears the progress of a finished custom rules job.
+    ///
+    /// ## Documentation
+    /// * [Custom Rules Progress](https://wakatime.com/developers#custom_rules_progress)
+    pub async fn delete_custom_rules_progress(&self) -> Result<(), ApiError> {
+        let url = format!(
+            "{base_url}users/{user}/custom_rules_progress",
+            base_url = self.base_url,
+            user = self.user
+        );
+        let response = self.client.delete(url).send().await?;
+        Self::deserialize_as(response, |_: serde_json::Value| ()).await
+    }
+
     /// ## Documentation
     /// * [Custom Rules](https://wakatime.com/developers#custom_rules)
     pub async fn custom_rules(&self) -> Result<model::CustomRules, ApiError> {
@@ -299,8 +499,8 @@ impl WakaTimeClient {
     /// * [Insights](https://wakatime.com/developers#insights)
     pub async fn insights<'a>(
         &self,
-        insight_type: &str,
-        range: &str,
+        insight_type: impl std::fmt::Display,
+        range: impl std::fmt::Display,
         options: InsightsOptions<'a>,
     ) -> Result<model::Insight, ApiError> {
         let qs = options.into_query_string();
@@ -532,11 +732,77 @@ impl WakaTimeClient {
         Self::deserialize_as(response, |r| r).await
     }
 
+    /// Fetches all projects across all pages.
+    ///
+    /// ## Documentation
+    /// * [Projects](https://wakatime.com/developers#projects)
+    pub async fn projects_all(
+        &self,
+        q: Option<&str>,
+    ) -> Result<Vec<model::projects::ProjectSummary>, ApiError> {
+        let mut all = Vec::new();
+        let mut page = 1;
+        loop {
+            let response = self
+                .projects(ProjectsOptions {
+                    q,
+                    page: Some(page),
+                })
+                .await?;
+            let is_empty = response.data.is_empty();
+            let total_pages = response.pagination.total_pages;
+            all.extend(response.data);
+            match total_pages {
+                Some(total_pages) if page < total_pages => page += 1,
+                Some(_) => break,
+                // No pagination metadata: stop once a page comes back empty.
+                None if is_empty => break,
+                None => page += 1,
+            }
+        }
+        Ok(all)
+    }
+
+    /// Fetches all commits of a project across all pages.
+    ///
+    /// ## Documentation
+    /// * [Commits](https://wakatime.com/developers#commits)
+    pub async fn commits_all<'a>(
+        &self,
+        project: &str,
+        options: CommitsOptions<'a>,
+    ) -> Result<Vec<model::commit::Commit>, ApiError> {
+        let mut all = Vec::new();
+        let mut page = options.page.unwrap_or(1);
+        loop {
+            let response = self
+                .commits(
+                    project,
+                    CommitsOptions {
+                        page: Some(page),
+                        ..options.clone()
+                    },
+                )
+                .await?;
+            let is_empty = response.data.is_empty();
+            let total_pages = response.pagination.total_pages;
+            all.extend(response.data);
+            match total_pages {
+                Some(total_pages) if page < total_pages => page += 1,
+                Some(_) => break,
+                // No pagination metadata: stop once a page comes back empty.
+                None if is_empty => break,
+                None => page += 1,
+            }
+        }
+        Ok(all)
+    }
+
     /// ## Documentation
     /// * [Stats](https://wakatime.com/developers#stats)
     pub async fn stats<'a>(
         &self,
-        range: &str,
+        range: impl std::fmt::Display,
         options: StatsOptions<'a>,
     ) -> Result<model::Stats, ApiError> {
         let qs = options.into_query_string();
@@ -551,7 +817,10 @@ impl WakaTimeClient {
 
     /// ## Documentation
     /// * [Stats Aggregated](https://wakatime.com/developers#stats_aggregated)
-    pub async fn stats_aggregated(&self, range: &str) -> Result<model::AggregatedStats, ApiError> {
+    pub async fn stats_aggregated(
+        &self,
+        range: impl std::fmt::Display,
+    ) -> Result<model::AggregatedStats, ApiError> {
         let url = format!("{base_url}stats/{range}", base_url = self.base_url);
         let response = self.client.get(url).send().await?;
         Self::deserialize_as(response, |r: DataWrapper<model::AggregatedStats>| r.data).await
@@ -599,7 +868,9 @@ impl WakaTimeClient {
         F: FnOnce(TIn) -> TOut,
     {
         match response.status().as_u16() {
-            200 => match response.json::<TIn>().await {
+            // Write endpoints respond with 201 Created or 202 Accepted;
+            // 202 is also used when cached stats are being refreshed.
+            200..=202 => match response.json::<TIn>().await {
                 Ok(response) => Ok(map(response)),
                 Err(e) => Err(ApiError::InvalidFormat(e)),
             },
@@ -645,6 +916,70 @@ pub struct DataWrapper<T> {
 
 trait IntoQueryString {
     fn into_query_string(self) -> QueryString;
+}
+
+/// A time range accepted by [`WakaTimeClient::stats`], [`WakaTimeClient::insights`]
+/// and [`WakaTimeClient::stats_aggregated`].
+///
+/// These methods also accept plain strings, e.g. `"last_7_days"` or `"2024-03"`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[non_exhaustive]
+pub enum Range {
+    Last7Days,
+    Last30Days,
+    Last6Months,
+    LastYear,
+    AllTime,
+    /// A specific year, e.g. `2024`.
+    Year(u16),
+}
+
+impl std::fmt::Display for Range {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Range::Last7Days => f.write_str("last_7_days"),
+            Range::Last30Days => f.write_str("last_30_days"),
+            Range::Last6Months => f.write_str("last_6_months"),
+            Range::LastYear => f.write_str("last_year"),
+            Range::AllTime => f.write_str("all_time"),
+            Range::Year(year) => write!(f, "{year}"),
+        }
+    }
+}
+
+/// An insight type accepted by [`WakaTimeClient::insights`].
+///
+/// The method also accepts plain strings, e.g. `"weekdays"`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[non_exhaustive]
+pub enum InsightType {
+    Weekdays,
+    Days,
+    BestDay,
+    DailyAverage,
+    Projects,
+    Languages,
+    Editors,
+    Categories,
+    Machines,
+    OperatingSystems,
+}
+
+impl std::fmt::Display for InsightType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(match self {
+            InsightType::Weekdays => "weekdays",
+            InsightType::Days => "days",
+            InsightType::BestDay => "best_day",
+            InsightType::DailyAverage => "daily_average",
+            InsightType::Projects => "projects",
+            InsightType::Languages => "languages",
+            InsightType::Editors => "editors",
+            InsightType::Categories => "categories",
+            InsightType::Machines => "machines",
+            InsightType::OperatingSystems => "operating_systems",
+        })
+    }
 }
 
 #[derive(Debug, Default, Clone)]
