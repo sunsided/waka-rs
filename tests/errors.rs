@@ -67,6 +67,25 @@ async fn returns_not_found_on_404() {
 }
 
 #[tokio::test]
+async fn parses_singular_error_body_on_404() {
+    // Some endpoints return {"error": "..."} instead of {"errors": [...]},
+    // as observed live on /users/current/orgs.
+    let server = MockServer::start().await;
+    mock_projects_status(
+        &server,
+        ResponseTemplate::new(404).set_body_raw(r#"{"error": "Not found."}"#, "application/json"),
+    )
+    .await;
+
+    let client = common::client_for(&server);
+    let result = client.projects(ProjectsOptions::default()).await;
+
+    assert!(let Err(ApiError::NotFound(Some(errors))) = result);
+    check!(errors.error.as_deref() == Some("Not found."));
+    check!(errors.errors.is_empty());
+}
+
+#[tokio::test]
 async fn returns_rate_limited_on_429_with_retry_after() {
     let server = MockServer::start().await;
     mock_projects_status(

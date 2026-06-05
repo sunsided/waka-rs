@@ -626,9 +626,16 @@ impl WakaTimeClient {
     }
 }
 
+/// The error messages returned by the API; either as a list in `errors`
+/// or as a single message in `error`, depending on the endpoint.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ErrorsResponse {
+    /// Error messages, when the API returns a list.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub errors: Vec<String>,
+    /// The error message, when the API returns a single one.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub error: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
