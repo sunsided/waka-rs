@@ -12,13 +12,13 @@ repository = "https://github.com/sunsided/waka-rs"
 [dependencies]
 base64 = "0.22"
 query-string-builder = "0.6"
-reqwest = { version = "0.12", features = ["json"] }
+reqwest = { version = "0.13", features = ["json"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 thiserror = "2"
 
 [dev-dependencies]
-assert2 = "0.3"
+assert2 = "0.4"
 dotenvy = "0.15.7"
-tokio = { version = "1.29.1", features = ["full"] }
+tokio = { version = "1.52.3", features = ["full"] }
 wiremock = "0.6"

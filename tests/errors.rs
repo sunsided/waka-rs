@@ -2,7 +2,7 @@
 
 mod common;
 
-use assert2::{check, let_assert};
+use assert2::{assert, check};
 use waka::{ApiError, ProjectsOptions};
 use wiremock::matchers::{method, path};
 use wiremock::{Mock, MockServer, ResponseTemplate};
@@ -29,7 +29,7 @@ async fn returns_unauthorized_on_401() {
     let client = common::client_for(&server);
     let result = client.projects(ProjectsOptions::default()).await;
 
-    let_assert!(Err(ApiError::Unauthorized(Some(errors))) = result);
+    assert!(let Err(ApiError::Unauthorized(Some(errors))) = result);
     check!(errors.errors == vec!["Unauthorized.".to_string()]);
 }
 
@@ -41,7 +41,7 @@ async fn returns_payment_required_on_402() {
     let client = common::client_for(&server);
     let result = client.projects(ProjectsOptions::default()).await;
 
-    let_assert!(Err(ApiError::PaymentRequired(_)) = result);
+    assert!(let Err(ApiError::PaymentRequired(_)) = result);
 }
 
 #[tokio::test]
@@ -52,7 +52,7 @@ async fn returns_forbidden_on_403() {
     let client = common::client_for(&server);
     let result = client.projects(ProjectsOptions::default()).await;
 
-    let_assert!(Err(ApiError::Forbidden(_)) = result);
+    assert!(let Err(ApiError::Forbidden(_)) = result);
 }
 
 #[tokio::test]
@@ -63,7 +63,7 @@ async fn returns_not_found_on_404() {
     let client = common::client_for(&server);
     let result = client.projects(ProjectsOptions::default()).await;
 
-    let_assert!(Err(ApiError::NotFound(_)) = result);
+    assert!(let Err(ApiError::NotFound(_)) = result);
 }
 
 #[tokio::test]
@@ -80,14 +80,14 @@ async fn returns_rate_limited_on_429_with_retry_after() {
     let client = common::client_for(&server);
     let result = client.projects(ProjectsOptions::default()).await;
 
-    let_assert!(
+    assert!(let
         Err(ApiError::RateLimited {
             retry_after,
             errors
         }) = result
     );
     check!(retry_after == Some(30));
-    let_assert!(Some(errors) = errors);
+    assert!(let Some(errors) = errors);
     check!(errors.errors == vec!["Too many requests. Please slow down.".to_string()]);
 }
 
@@ -99,7 +99,7 @@ async fn returns_unspecified_on_unhandled_status() {
     let client = common::client_for(&server);
     let result = client.projects(ProjectsOptions::default()).await;
 
-    let_assert!(Err(ApiError::Unspecified(503, _)) = result);
+    assert!(let Err(ApiError::Unspecified(503, _)) = result);
 }
 
 #[tokio::test]
@@ -114,5 +114,5 @@ async fn returns_invalid_format_on_unexpected_body() {
     let client = common::client_for(&server);
     let result = client.projects(ProjectsOptions::default()).await;
 
-    let_assert!(Err(ApiError::InvalidFormat(_)) = result);
+    assert!(let Err(ApiError::InvalidFormat(_)) = result);
 }
