@@ -29,7 +29,7 @@ pub use crate::builder_error::BuilderError;
 use base64::Engine;
 use query_string_builder::QueryString;
 use reqwest::header::HeaderValue;
-use reqwest::{header, Client, ClientBuilder, Response};
+use reqwest::{Client, ClientBuilder, Response, header};
 use serde::{Deserialize, Serialize};
 
 static BASE_URL: &str = "https://wakatime.com/api/v1/";
