@@ -203,6 +203,75 @@ impl WakaTimeClient {
     }
 
     /// ## Documentation
+    /// * [Custom Rules](https://wakatime.com/developers#custom_rules)
+    pub async fn custom_rules(&self) -> Result<model::CustomRules, ApiError> {
+        let url = format!(
+            "{base_url}users/{user}/custom_rules",
+            base_url = self.base_url,
+            user = self.user
+        );
+        let response = self.client.get(url).send().await?;
+        Self::deserialize_as(response, |r| r).await
+    }
+
+    /// ## Documentation
+    /// * [Custom Rules Progress](https://wakatime.com/developers#custom_rules_progress)
+    pub async fn custom_rules_progress(
+        &self,
+        job_id: &str,
+    ) -> Result<model::CustomRulesProgress, ApiError> {
+        let qs = QueryString::dynamic().with_value("job_id", job_id);
+        let url = format!(
+            "{base_url}users/{user}/custom_rules_progress{qs}",
+            base_url = self.base_url,
+            user = self.user
+        );
+        let response = self.client.get(url).send().await?;
+        Self::deserialize_as(response, |r: DataWrapper<model::CustomRulesProgress>| {
+            r.data
+        })
+        .await
+    }
+
+    /// ## Documentation
+    /// * [Data Dumps](https://wakatime.com/developers#data_dumps)
+    pub async fn data_dumps(&self) -> Result<model::DataDumps, ApiError> {
+        let url = format!(
+            "{base_url}users/{user}/data_dumps",
+            base_url = self.base_url,
+            user = self.user
+        );
+        let response = self.client.get(url).send().await?;
+        Self::deserialize_as(response, |r| r).await
+    }
+
+    /// ## Documentation
+    /// * [Editors](https://wakatime.com/developers#editors)
+    pub async fn editors(&self, options: EditorsOptions) -> Result<model::Editors, ApiError> {
+        let qs = options.into_query_string();
+        let url = format!("{base_url}editors{qs}", base_url = self.base_url);
+        let response = self.client.get(url).send().await?;
+        Self::deserialize_as(response, |r| r).await
+    }
+
+    /// ## Documentation
+    /// * [External Durations](https://wakatime.com/developers#external_durations)
+    pub async fn external_durations<'a>(
+        &self,
+        date: &str,
+        options: ExternalDurationsOptions<'a>,
+    ) -> Result<model::ExternalDurations, ApiError> {
+        let qs = options.into_query_string().with_value("date", date);
+        let url = format!(
+            "{base_url}users/{user}/external_durations{qs}",
+            base_url = self.base_url,
+            user = self.user
+        );
+        let response = self.client.get(url).send().await?;
+        Self::deserialize_as(response, |r| r).await
+    }
+
+    /// ## Documentation
     /// * [Goals](https://wakatime.com/developers#goals)
     pub async fn goals(&self) -> Result<model::Goals, ApiError> {
         let url = format!(
@@ -269,6 +338,51 @@ impl WakaTimeClient {
     }
 
     /// ## Documentation
+    /// * [Meta](https://wakatime.com/developers#meta)
+    pub async fn meta(&self) -> Result<model::Meta, ApiError> {
+        let url = format!("{base_url}meta", base_url = self.base_url);
+        let response = self.client.get(url).send().await?;
+        Self::deserialize_as(response, |r: DataWrapper<model::Meta>| r.data).await
+    }
+
+    /// ## Documentation
+    /// * [Private Leaderboards](https://wakatime.com/developers#private_leaderboards)
+    pub async fn private_leaderboards(&self) -> Result<model::PrivateLeaderboards, ApiError> {
+        let url = format!(
+            "{base_url}users/{user}/leaderboards",
+            base_url = self.base_url,
+            user = self.user
+        );
+        let response = self.client.get(url).send().await?;
+        Self::deserialize_as(response, |r| r).await
+    }
+
+    /// ## Documentation
+    /// * [Private Leaderboards Leaders](https://wakatime.com/developers#private_leaderboards_leaders)
+    pub async fn private_leaderboard_leaders<'a>(
+        &self,
+        board: &str,
+        options: PrivateLeaderboardLeadersOptions<'a>,
+    ) -> Result<model::Leaders, ApiError> {
+        let qs = options.into_query_string();
+        let url = format!(
+            "{base_url}users/{user}/leaderboards/{board}{qs}",
+            base_url = self.base_url,
+            user = self.user
+        );
+        let response = self.client.get(url).send().await?;
+        Self::deserialize_as(response, |r| r).await
+    }
+
+    /// ## Documentation
+    /// * [Program Languages](https://wakatime.com/developers#program_languages)
+    pub async fn program_languages(&self) -> Result<model::ProgramLanguages, ApiError> {
+        let url = format!("{base_url}program_languages", base_url = self.base_url);
+        let response = self.client.get(url).send().await?;
+        Self::deserialize_as(response, |r| r).await
+    }
+
+    /// ## Documentation
     /// * [Projects](https://wakatime.com/developers#projects)
     pub async fn projects<'a>(
         &self,
@@ -299,6 +413,14 @@ impl WakaTimeClient {
         );
         let response = self.client.get(url).send().await?;
         Self::deserialize_as(response, |r: DataWrapper<model::Stats>| r.data).await
+    }
+
+    /// ## Documentation
+    /// * [Stats Aggregated](https://wakatime.com/developers#stats_aggregated)
+    pub async fn stats_aggregated(&self, range: &str) -> Result<model::AggregatedStats, ApiError> {
+        let url = format!("{base_url}stats/{range}", base_url = self.base_url);
+        let response = self.client.get(url).send().await?;
+        Self::deserialize_as(response, |r: DataWrapper<model::AggregatedStats>| r.data).await
     }
 
     /// ## Documentation
@@ -454,6 +576,37 @@ impl<'a> IntoQueryString for DurationsOptions<'a> {
 }
 
 #[derive(Debug, Default, Clone)]
+pub struct EditorsOptions {
+    /// Include editors with unreleased plugins.
+    pub unreleased: Option<bool>,
+}
+
+impl IntoQueryString for EditorsOptions {
+    fn into_query_string(self) -> QueryString {
+        QueryString::dynamic().with_opt_value("unreleased", self.unreleased.map(|v| v.to_string()))
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct ExternalDurationsOptions<'a> {
+    /// Only show durations for this project.
+    pub project: Option<&'a str>,
+    /// Only show durations for these branches; comma separated list of branch names.
+    pub branches: Option<&'a str>,
+    /// The timezone for the given date; defaults to the user's timezone.
+    pub timezone: Option<&'a str>,
+}
+
+impl<'a> IntoQueryString for ExternalDurationsOptions<'a> {
+    fn into_query_string(self) -> QueryString {
+        QueryString::dynamic()
+            .with_opt_value("project", self.project)
+            .with_opt_value("branches", self.branches)
+            .with_opt_value("timezone", self.timezone)
+    }
+}
+
+#[derive(Debug, Default, Clone)]
 pub struct InsightsOptions<'a> {
     /// The keystroke timeout value used to calculate the insight.
     pub timeout: Option<u32>,
@@ -489,6 +642,25 @@ impl<'a> IntoQueryString for LeadersOptions<'a> {
         QueryString::dynamic()
             .with_opt_value("language", self.language)
             .with_opt_value("is_hireable", self.is_hireable.map(|v| v.to_string()))
+            .with_opt_value("country_code", self.country_code)
+            .with_opt_value("page", self.page.map(|v| v.to_string()))
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct PrivateLeaderboardLeadersOptions<'a> {
+    /// Filter leaders by a specific language.
+    pub language: Option<&'a str>,
+    /// Filter leaders by a two-character country code.
+    pub country_code: Option<&'a str>,
+    /// Page number of the leaderboard.
+    pub page: Option<u32>,
+}
+
+impl<'a> IntoQueryString for PrivateLeaderboardLeadersOptions<'a> {
+    fn into_query_string(self) -> QueryString {
+        QueryString::dynamic()
+            .with_opt_value("language", self.language)
             .with_opt_value("country_code", self.country_code)
             .with_opt_value("page", self.page.map(|v| v.to_string()))
     }

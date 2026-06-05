@@ -1,7 +1,8 @@
 use std::error::Error;
 use waka::{
-    AllTimesSinceTodayOptions, CommitOptions, CommitsOptions, DurationsOptions, InsightsOptions,
-    LeadersOptions, ProjectsOptions, StatsOptions, SummariesOptions, WakaTimeClientBuilder,
+    AllTimesSinceTodayOptions, CommitOptions, CommitsOptions, DurationsOptions, EditorsOptions,
+    ExternalDurationsOptions, InsightsOptions, LeadersOptions, ProjectsOptions, StatsOptions,
+    SummariesOptions, WakaTimeClientBuilder,
 };
 
 #[tokio::main]
@@ -73,6 +74,32 @@ pub async fn main() -> Result<(), Box<dyn Error>> {
 
     let status_bar = client.status_bar_today().await?;
     println!("{status_bar:?}");
+
+    let editors = client.editors(EditorsOptions::default()).await?;
+    println!("{editors:?}");
+
+    let program_languages = client.program_languages().await?;
+    println!("{program_languages:?}");
+
+    let meta = client.meta().await?;
+    println!("{meta:?}");
+
+    let stats_aggregated = client.stats_aggregated("last_7_days").await?;
+    println!("{stats_aggregated:?}");
+
+    let private_leaderboards = client.private_leaderboards().await?;
+    println!("{private_leaderboards:?}");
+
+    let data_dumps = client.data_dumps().await?;
+    println!("{data_dumps:?}");
+
+    let custom_rules = client.custom_rules().await?;
+    println!("{custom_rules:?}");
+
+    let external_durations = client
+        .external_durations("2023-01-02", ExternalDurationsOptions::default())
+        .await?;
+    println!("{external_durations:?}");
 
     Ok(())
 }
