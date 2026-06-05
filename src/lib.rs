@@ -155,6 +155,98 @@ impl WakaTimeClient {
         Self::deserialize_as(response, |r| r).await
     }
 
+    /// ## Documentation
+    /// * [Commits](https://wakatime.com/developers#commits)
+    pub async fn commits<'a>(
+        &self,
+        project: &str,
+        options: CommitsOptions<'a>,
+    ) -> Result<model::CommitsPage, ApiError> {
+        let qs = options.into_query_string();
+        let url = format!(
+            "{base_url}users/{user}/projects/{project}/commits{qs}",
+            base_url = self.base_url,
+            user = self.user
+        );
+        let response = self.client.get(url).send().await?;
+        Self::deserialize_as(response, |r| r).await
+    }
+
+    /// ## Documentation
+    /// * [Durations](https://wakatime.com/developers#durations)
+    pub async fn durations<'a>(
+        &self,
+        date: &str,
+        options: DurationsOptions<'a>,
+    ) -> Result<model::Durations, ApiError> {
+        let qs = options.into_query_string().with_value("date", date);
+        let url = format!(
+            "{base_url}users/{user}/durations{qs}",
+            base_url = self.base_url,
+            user = self.user
+        );
+        let response = self.client.get(url).send().await?;
+        Self::deserialize_as(response, |r| r).await
+    }
+
+    /// ## Documentation
+    /// * [Heartbeats](https://wakatime.com/developers#heartbeats)
+    pub async fn heartbeats(&self, date: &str) -> Result<model::Heartbeats, ApiError> {
+        let qs = QueryString::dynamic().with_value("date", date);
+        let url = format!(
+            "{base_url}users/{user}/heartbeats{qs}",
+            base_url = self.base_url,
+            user = self.user
+        );
+        let response = self.client.get(url).send().await?;
+        Self::deserialize_as(response, |r| r).await
+    }
+
+    /// ## Documentation
+    /// * [Projects](https://wakatime.com/developers#projects)
+    pub async fn projects<'a>(
+        &self,
+        options: ProjectsOptions<'a>,
+    ) -> Result<model::Projects, ApiError> {
+        let qs = options.into_query_string();
+        let url = format!(
+            "{base_url}users/{user}/projects{qs}",
+            base_url = self.base_url,
+            user = self.user
+        );
+        let response = self.client.get(url).send().await?;
+        Self::deserialize_as(response, |r| r).await
+    }
+
+    /// ## Documentation
+    /// * [Stats](https://wakatime.com/developers#stats)
+    pub async fn stats<'a>(
+        &self,
+        range: &str,
+        options: StatsOptions<'a>,
+    ) -> Result<model::Stats, ApiError> {
+        let qs = options.into_query_string();
+        let url = format!(
+            "{base_url}users/{user}/stats/{range}{qs}",
+            base_url = self.base_url,
+            user = self.user
+        );
+        let response = self.client.get(url).send().await?;
+        Self::deserialize_as(response, |r: DataWrapper<model::Stats>| r.data).await
+    }
+
+    /// ## Documentation
+    /// * [Users](https://wakatime.com/developers#users)
+    pub async fn user(&self) -> Result<model::User, ApiError> {
+        let url = format!(
+            "{base_url}users/{user}",
+            base_url = self.base_url,
+            user = self.user
+        );
+        let response = self.client.get(url).send().await?;
+        Self::deserialize_as(response, |r: DataWrapper<model::User>| r.data).await
+    }
+
     async fn deserialize_as<TIn, F, TOut>(response: Response, map: F) -> Result<TOut, ApiError>
     where
         TIn: for<'de> Deserialize<'de>,
@@ -221,6 +313,88 @@ pub struct CommitOptions<'a> {
 impl<'a> IntoQueryString for CommitOptions<'a> {
     fn into_query_string(self) -> QueryString {
         QueryString::dynamic().with_opt_value("branch", self.branch)
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct CommitsOptions<'a> {
+    /// Filter commits to those authored by the given author.
+    pub author: Option<&'a str>,
+    /// Filter commits to a branch; defaults to the repo's default branch name.
+    pub branch: Option<&'a str>,
+    /// Page number of commits.
+    pub page: Option<u32>,
+}
+
+impl<'a> IntoQueryString for CommitsOptions<'a> {
+    fn into_query_string(self) -> QueryString {
+        QueryString::dynamic()
+            .with_opt_value("author", self.author)
+            .with_opt_value("branch", self.branch)
+            .with_opt_value("page", self.page.map(|v| v.to_string()))
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct DurationsOptions<'a> {
+    /// Only show durations for this project.
+    pub project: Option<&'a str>,
+    /// Only show durations for these branches; comma separated list of branch names.
+    pub branches: Option<&'a str>,
+    /// The keystroke timeout preference used when joining heartbeats into durations.
+    pub timeout: Option<u32>,
+    /// The writes_only preference.
+    pub writes_only: Option<bool>,
+    /// The timezone for the given date; defaults to the user's timezone.
+    pub timezone: Option<&'a str>,
+    /// Optional primary key to use when slicing durations; defaults to `entity`.
+    pub slice_by: Option<&'a str>,
+}
+
+impl<'a> IntoQueryString for DurationsOptions<'a> {
+    fn into_query_string(self) -> QueryString {
+        QueryString::dynamic()
+            .with_opt_value("project", self.project)
+            .with_opt_value("branches", self.branches)
+            .with_opt_value("timeout", self.timeout.map(|v| v.to_string()))
+            .with_opt_value("writes_only", self.writes_only.map(|v| v.to_string()))
+            .with_opt_value("timezone", self.timezone)
+            .with_opt_value("slice_by", self.slice_by)
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct ProjectsOptions<'a> {
+    /// Filter project names by a search term.
+    pub q: Option<&'a str>,
+    /// Page number of projects.
+    pub page: Option<u32>,
+}
+
+impl<'a> IntoQueryString for ProjectsOptions<'a> {
+    fn into_query_string(self) -> QueryString {
+        QueryString::dynamic()
+            .with_opt_value("q", self.q)
+            .with_opt_value("page", self.page.map(|v| v.to_string()))
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct StatsOptions<'a> {
+    /// The keystroke timeout value used to calculate these stats.
+    pub timeout: Option<u32>,
+    /// The writes_only value used to calculate these stats.
+    pub writes_only: Option<bool>,
+    /// Show more detailed stats limited to this project.
+    pub project: Option<&'a str>,
+}
+
+impl<'a> IntoQueryString for StatsOptions<'a> {
+    fn into_query_string(self) -> QueryString {
+        QueryString::dynamic()
+            .with_opt_value("timeout", self.timeout.map(|v| v.to_string()))
+            .with_opt_value("writes_only", self.writes_only.map(|v| v.to_string()))
+            .with_opt_value("project", self.project)
     }
 }
 

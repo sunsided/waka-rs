@@ -1,5 +1,8 @@
 use std::error::Error;
-use waka::{AllTimesSinceTodayOptions, CommitOptions, SummariesOptions, WakaTimeClientBuilder};
+use waka::{
+    AllTimesSinceTodayOptions, CommitOptions, CommitsOptions, DurationsOptions, ProjectsOptions,
+    StatsOptions, SummariesOptions, WakaTimeClientBuilder,
+};
 
 #[tokio::main]
 pub async fn main() -> Result<(), Box<dyn Error>> {
@@ -28,6 +31,28 @@ pub async fn main() -> Result<(), Box<dyn Error>> {
         )
         .await?;
     println!("{commit:?}");
+
+    let commits = client
+        .commits("cartoonify", CommitsOptions::default())
+        .await?;
+    println!("{commits:?}");
+
+    let user = client.user().await?;
+    println!("{user:?}");
+
+    let stats = client.stats("last_7_days", StatsOptions::default()).await?;
+    println!("{stats:?}");
+
+    let projects = client.projects(ProjectsOptions::default()).await?;
+    println!("{projects:?}");
+
+    let durations = client
+        .durations("2023-01-02", DurationsOptions::default())
+        .await?;
+    println!("{durations:?}");
+
+    let heartbeats = client.heartbeats("2023-01-02").await?;
+    println!("{heartbeats:?}");
 
     Ok(())
 }
