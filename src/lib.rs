@@ -169,7 +169,7 @@ impl WakaTimeClient {
         &self,
         options: AllTimesSinceTodayOptions<'a>,
     ) -> Result<model::AllTimeSinceToday, ApiError> {
-        let qs = options.into_query_string();
+        let qs = options.query_string();
         let url = format!(
             "{base_url}users/{user}/all_time_since_today{qs}",
             base_url = self.base_url,
@@ -189,7 +189,7 @@ impl WakaTimeClient {
         hash: &str,
         options: CommitOptions<'a>,
     ) -> Result<model::Commits, ApiError> {
-        let qs = options.into_query_string();
+        let qs = options.query_string();
         let url = format!(
             "{base_url}users/{user}/projects/{project}/commits/{hash}{qs}",
             base_url = self.base_url,
@@ -212,9 +212,9 @@ impl WakaTimeClient {
         options: SummariesOptions<'a>,
     ) -> Result<model::Summaries, ApiError> {
         let qs = options
-            .into_query_string()
-            .with_value("start", start)
-            .with_value("end", end);
+            .query_string()
+            .with("start", start)
+            .with("end", end);
         let url = format!(
             "{base_url}users/{user}/summaries{qs}",
             base_url = self.base_url,
@@ -233,7 +233,7 @@ impl WakaTimeClient {
         project: &str,
         options: CommitsOptions<'a>,
     ) -> Result<model::CommitsPage, ApiError> {
-        let qs = options.into_query_string();
+        let qs = options.query_string();
         let url = format!(
             "{base_url}users/{user}/projects/{project}/commits{qs}",
             base_url = self.base_url,
@@ -253,7 +253,7 @@ impl WakaTimeClient {
         date: &str,
         options: DurationsOptions<'a>,
     ) -> Result<model::Durations, ApiError> {
-        let qs = options.into_query_string().with_value("date", date);
+        let qs = options.query_string().with("date", date);
         let url = format!(
             "{base_url}users/{user}/durations{qs}",
             base_url = self.base_url,
@@ -268,7 +268,7 @@ impl WakaTimeClient {
     /// ## Documentation
     /// * [Heartbeats](https://wakatime.com/developers#heartbeats)
     pub async fn heartbeats(&self, date: &str) -> Result<model::Heartbeats, ApiError> {
-        let qs = QueryString::dynamic().with_value("date", date);
+        let qs = QueryString::new().with("date", date);
         let url = format!(
             "{base_url}users/{user}/heartbeats{qs}",
             base_url = self.base_url,
@@ -476,7 +476,7 @@ impl WakaTimeClient {
         &self,
         job_id: &str,
     ) -> Result<model::CustomRulesProgress, ApiError> {
-        let qs = QueryString::dynamic().with_value("job_id", job_id);
+        let qs = QueryString::new().with("job_id", job_id);
         let url = format!(
             "{base_url}users/{user}/custom_rules_progress{qs}",
             base_url = self.base_url,
@@ -508,7 +508,7 @@ impl WakaTimeClient {
     /// ## Documentation
     /// * [Editors](https://wakatime.com/developers#editors)
     pub async fn editors(&self, options: EditorsOptions) -> Result<model::Editors, ApiError> {
-        let qs = options.into_query_string();
+        let qs = options.query_string();
         let url = format!("{base_url}editors{qs}", base_url = self.base_url);
         let response = self.client.get(url).send().await?;
         Self::deserialize_as(response, |r| r).await
@@ -523,7 +523,7 @@ impl WakaTimeClient {
         date: &str,
         options: ExternalDurationsOptions<'a>,
     ) -> Result<model::ExternalDurations, ApiError> {
-        let qs = options.into_query_string().with_value("date", date);
+        let qs = options.query_string().with("date", date);
         let url = format!(
             "{base_url}users/{user}/external_durations{qs}",
             base_url = self.base_url,
@@ -572,7 +572,7 @@ impl WakaTimeClient {
         range: impl std::fmt::Display,
         options: InsightsOptions<'a>,
     ) -> Result<model::Insight, ApiError> {
-        let qs = options.into_query_string();
+        let qs = options.query_string();
         let url = format!(
             "{base_url}users/{user}/insights/{insight_type}/{range}{qs}",
             base_url = self.base_url,
@@ -592,7 +592,7 @@ impl WakaTimeClient {
         &self,
         options: LeadersOptions<'a>,
     ) -> Result<model::Leaders, ApiError> {
-        let qs = options.into_query_string();
+        let qs = options.query_string();
         let url = format!("{base_url}leaders{qs}", base_url = self.base_url);
         let response = self.client.get(url).send().await?;
         Self::deserialize_as(response, |r| r).await
@@ -697,7 +697,7 @@ impl WakaTimeClient {
         date: &str,
         options: OrgDurationsOptions<'a>,
     ) -> Result<model::OrgDashboardDurations, ApiError> {
-        let qs = options.into_query_string().with_value("date", date);
+        let qs = options.query_string().with("date", date);
         let url = format!(
             "{base_url}users/{user}/orgs/{org}/dashboards/{dashboard}/durations{qs}",
             base_url = self.base_url,
@@ -720,7 +720,7 @@ impl WakaTimeClient {
         date: &str,
         options: OrgSummariesOptions<'a>,
     ) -> Result<model::OrgDashboardSummaries, ApiError> {
-        let qs = options.into_query_string().with_value("date", date);
+        let qs = options.query_string().with("date", date);
         let url = format!(
             "{base_url}users/{user}/orgs/{org}/dashboards/{dashboard}/summaries{qs}",
             base_url = self.base_url,
@@ -744,7 +744,7 @@ impl WakaTimeClient {
         date: &str,
         options: OrgDurationsOptions<'a>,
     ) -> Result<model::Durations, ApiError> {
-        let qs = options.into_query_string().with_value("date", date);
+        let qs = options.query_string().with("date", date);
         let url = format!(
             "{base_url}users/{user}/orgs/{org}/dashboards/{dashboard}/members/{member}/durations{qs}",
             base_url = self.base_url,
@@ -771,9 +771,9 @@ impl WakaTimeClient {
         options: OrgMemberSummariesOptions<'a>,
     ) -> Result<model::OrgMemberSummaries, ApiError> {
         let qs = options
-            .into_query_string()
-            .with_value("start", start)
-            .with_value("end", end);
+            .query_string()
+            .with("start", start)
+            .with("end", end);
         let url = format!(
             "{base_url}users/{user}/orgs/{org}/dashboards/{dashboard}/members/{member}/summaries{qs}",
             base_url = self.base_url,
@@ -809,7 +809,7 @@ impl WakaTimeClient {
         board: &str,
         options: PrivateLeaderboardLeadersOptions<'a>,
     ) -> Result<model::Leaders, ApiError> {
-        let qs = options.into_query_string();
+        let qs = options.query_string();
         let url = format!(
             "{base_url}users/{user}/leaderboards/{board}{qs}",
             base_url = self.base_url,
@@ -838,7 +838,7 @@ impl WakaTimeClient {
         &self,
         options: ProjectsOptions<'a>,
     ) -> Result<model::Projects, ApiError> {
-        let qs = options.into_query_string();
+        let qs = options.query_string();
         let url = format!(
             "{base_url}users/{user}/projects{qs}",
             base_url = self.base_url,
@@ -923,7 +923,7 @@ impl WakaTimeClient {
         range: impl std::fmt::Display,
         options: StatsOptions<'a>,
     ) -> Result<model::Stats, ApiError> {
-        let qs = options.into_query_string();
+        let qs = options.query_string();
         let url = format!(
             "{base_url}users/{user}/stats/{range}{qs}",
             base_url = self.base_url,
@@ -1048,7 +1048,7 @@ pub struct DataWrapper<T> {
 }
 
 trait IntoQueryString {
-    fn into_query_string(self) -> QueryString;
+    fn query_string(&self) -> QueryString<'_>;
 }
 
 /// A time range accepted by [`WakaTimeClient::stats`], [`WakaTimeClient::insights`]
@@ -1138,8 +1138,8 @@ pub struct AllTimesSinceTodayOptions<'a> {
 }
 
 impl<'a> IntoQueryString for AllTimesSinceTodayOptions<'a> {
-    fn into_query_string(self) -> QueryString {
-        QueryString::dynamic().with_opt_value("project", self.project)
+    fn query_string(&self) -> QueryString<'_> {
+        QueryString::new().with_opt("project", self.project)
     }
 }
 
@@ -1151,8 +1151,8 @@ pub struct CommitOptions<'a> {
 }
 
 impl<'a> IntoQueryString for CommitOptions<'a> {
-    fn into_query_string(self) -> QueryString {
-        QueryString::dynamic().with_opt_value("branch", self.branch)
+    fn query_string(&self) -> QueryString<'_> {
+        QueryString::new().with_opt("branch", self.branch)
     }
 }
 
@@ -1168,11 +1168,11 @@ pub struct CommitsOptions<'a> {
 }
 
 impl<'a> IntoQueryString for CommitsOptions<'a> {
-    fn into_query_string(self) -> QueryString {
-        QueryString::dynamic()
-            .with_opt_value("author", self.author)
-            .with_opt_value("branch", self.branch)
-            .with_opt_value("page", self.page.map(|v| v.to_string()))
+    fn query_string(&self) -> QueryString<'_> {
+        QueryString::new()
+            .with_opt("author", self.author)
+            .with_opt("branch", self.branch)
+            .with_opt("page", self.page.as_ref())
     }
 }
 
@@ -1194,14 +1194,14 @@ pub struct DurationsOptions<'a> {
 }
 
 impl<'a> IntoQueryString for DurationsOptions<'a> {
-    fn into_query_string(self) -> QueryString {
-        QueryString::dynamic()
-            .with_opt_value("project", self.project)
-            .with_opt_value("branches", self.branches)
-            .with_opt_value("timeout", self.timeout.map(|v| v.to_string()))
-            .with_opt_value("writes_only", self.writes_only.map(|v| v.to_string()))
-            .with_opt_value("timezone", self.timezone)
-            .with_opt_value("slice_by", self.slice_by)
+    fn query_string(&self) -> QueryString<'_> {
+        QueryString::new()
+            .with_opt("project", self.project)
+            .with_opt("branches", self.branches)
+            .with_opt("timeout", self.timeout.as_ref())
+            .with_opt("writes_only", self.writes_only.as_ref())
+            .with_opt("timezone", self.timezone)
+            .with_opt("slice_by", self.slice_by)
     }
 }
 
@@ -1213,8 +1213,8 @@ pub struct EditorsOptions {
 }
 
 impl IntoQueryString for EditorsOptions {
-    fn into_query_string(self) -> QueryString {
-        QueryString::dynamic().with_opt_value("unreleased", self.unreleased.map(|v| v.to_string()))
+    fn query_string(&self) -> QueryString<'_> {
+        QueryString::new().with_opt("unreleased", self.unreleased.as_ref())
     }
 }
 
@@ -1230,11 +1230,11 @@ pub struct ExternalDurationsOptions<'a> {
 }
 
 impl<'a> IntoQueryString for ExternalDurationsOptions<'a> {
-    fn into_query_string(self) -> QueryString {
-        QueryString::dynamic()
-            .with_opt_value("project", self.project)
-            .with_opt_value("branches", self.branches)
-            .with_opt_value("timezone", self.timezone)
+    fn query_string(&self) -> QueryString<'_> {
+        QueryString::new()
+            .with_opt("project", self.project)
+            .with_opt("branches", self.branches)
+            .with_opt("timezone", self.timezone)
     }
 }
 
@@ -1250,11 +1250,11 @@ pub struct InsightsOptions<'a> {
 }
 
 impl<'a> IntoQueryString for InsightsOptions<'a> {
-    fn into_query_string(self) -> QueryString {
-        QueryString::dynamic()
-            .with_opt_value("timeout", self.timeout.map(|v| v.to_string()))
-            .with_opt_value("writes_only", self.writes_only.map(|v| v.to_string()))
-            .with_opt_value("weekday", self.weekday)
+    fn query_string(&self) -> QueryString<'_> {
+        QueryString::new()
+            .with_opt("timeout", self.timeout.as_ref())
+            .with_opt("writes_only", self.writes_only.as_ref())
+            .with_opt("weekday", self.weekday)
     }
 }
 
@@ -1272,12 +1272,12 @@ pub struct LeadersOptions<'a> {
 }
 
 impl<'a> IntoQueryString for LeadersOptions<'a> {
-    fn into_query_string(self) -> QueryString {
-        QueryString::dynamic()
-            .with_opt_value("language", self.language)
-            .with_opt_value("is_hireable", self.is_hireable.map(|v| v.to_string()))
-            .with_opt_value("country_code", self.country_code)
-            .with_opt_value("page", self.page.map(|v| v.to_string()))
+    fn query_string(&self) -> QueryString<'_> {
+        QueryString::new()
+            .with_opt("language", self.language)
+            .with_opt("is_hireable", self.is_hireable.as_ref())
+            .with_opt("country_code", self.country_code)
+            .with_opt("page", self.page.as_ref())
     }
 }
 
@@ -1294,11 +1294,11 @@ pub struct OrgDurationsOptions<'a> {
 }
 
 impl<'a> IntoQueryString for OrgDurationsOptions<'a> {
-    fn into_query_string(self) -> QueryString {
-        QueryString::dynamic()
-            .with_opt_value("project", self.project)
-            .with_opt_value("branches", self.branches)
-            .with_opt_value("slice_by", self.slice_by)
+    fn query_string(&self) -> QueryString<'_> {
+        QueryString::new()
+            .with_opt("project", self.project)
+            .with_opt("branches", self.branches)
+            .with_opt("slice_by", self.slice_by)
     }
 }
 
@@ -1312,10 +1312,10 @@ pub struct OrgSummariesOptions<'a> {
 }
 
 impl<'a> IntoQueryString for OrgSummariesOptions<'a> {
-    fn into_query_string(self) -> QueryString {
-        QueryString::dynamic()
-            .with_opt_value("project", self.project)
-            .with_opt_value("branches", self.branches)
+    fn query_string(&self) -> QueryString<'_> {
+        QueryString::new()
+            .with_opt("project", self.project)
+            .with_opt("branches", self.branches)
     }
 }
 
@@ -1331,11 +1331,11 @@ pub struct OrgMemberSummariesOptions<'a> {
 }
 
 impl<'a> IntoQueryString for OrgMemberSummariesOptions<'a> {
-    fn into_query_string(self) -> QueryString {
-        QueryString::dynamic()
-            .with_opt_value("project", self.project)
-            .with_opt_value("branches", self.branches)
-            .with_opt_value("range", self.range)
+    fn query_string(&self) -> QueryString<'_> {
+        QueryString::new()
+            .with_opt("project", self.project)
+            .with_opt("branches", self.branches)
+            .with_opt("range", self.range)
     }
 }
 
@@ -1351,11 +1351,11 @@ pub struct PrivateLeaderboardLeadersOptions<'a> {
 }
 
 impl<'a> IntoQueryString for PrivateLeaderboardLeadersOptions<'a> {
-    fn into_query_string(self) -> QueryString {
-        QueryString::dynamic()
-            .with_opt_value("language", self.language)
-            .with_opt_value("country_code", self.country_code)
-            .with_opt_value("page", self.page.map(|v| v.to_string()))
+    fn query_string(&self) -> QueryString<'_> {
+        QueryString::new()
+            .with_opt("language", self.language)
+            .with_opt("country_code", self.country_code)
+            .with_opt("page", self.page.as_ref())
     }
 }
 
@@ -1369,10 +1369,10 @@ pub struct ProjectsOptions<'a> {
 }
 
 impl<'a> IntoQueryString for ProjectsOptions<'a> {
-    fn into_query_string(self) -> QueryString {
-        QueryString::dynamic()
-            .with_opt_value("q", self.q)
-            .with_opt_value("page", self.page.map(|v| v.to_string()))
+    fn query_string(&self) -> QueryString<'_> {
+        QueryString::new()
+            .with_opt("q", self.q)
+            .with_opt("page", self.page.as_ref())
     }
 }
 
@@ -1388,11 +1388,11 @@ pub struct StatsOptions<'a> {
 }
 
 impl<'a> IntoQueryString for StatsOptions<'a> {
-    fn into_query_string(self) -> QueryString {
-        QueryString::dynamic()
-            .with_opt_value("timeout", self.timeout.map(|v| v.to_string()))
-            .with_opt_value("writes_only", self.writes_only.map(|v| v.to_string()))
-            .with_opt_value("project", self.project)
+    fn query_string(&self) -> QueryString<'_> {
+        QueryString::new()
+            .with_opt("timeout", self.timeout.as_ref())
+            .with_opt("writes_only", self.writes_only.as_ref())
+            .with_opt("project", self.project)
     }
 }
 
@@ -1414,13 +1414,13 @@ pub struct SummariesOptions<'a> {
 }
 
 impl<'a> IntoQueryString for SummariesOptions<'a> {
-    fn into_query_string(self) -> QueryString {
-        QueryString::dynamic()
-            .with_opt_value("project", self.project)
-            .with_opt_value("branches", self.branches)
-            .with_opt_value("timeout", self.timeout.map(|v| v.to_string()))
-            .with_opt_value("writes_only", self.writes_only.map(|v| v.to_string()))
-            .with_opt_value("timezone", self.timezone)
-            .with_opt_value("range", self.range)
+    fn query_string(&self) -> QueryString<'_> {
+        QueryString::new()
+            .with_opt("project", self.project)
+            .with_opt("branches", self.branches)
+            .with_opt("timeout", self.timeout.as_ref())
+            .with_opt("writes_only", self.writes_only.as_ref())
+            .with_opt("timezone", self.timezone)
+            .with_opt("range", self.range)
     }
 }
