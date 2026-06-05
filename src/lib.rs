@@ -24,6 +24,7 @@
 //! ```
 
 #![deny(unsafe_code)]
+#![deny(missing_docs)]
 
 mod api_error;
 mod builder_error;
@@ -126,6 +127,10 @@ impl WakaTimeClientBuilder {
         self
     }
 
+    /// Builds the [`WakaTimeClient`].
+    ///
+    /// Fails if the authentication value is not a valid header value or the
+    /// underlying HTTP client cannot be constructed.
     pub fn build(self) -> Result<WakaTimeClient, BuilderError> {
         let mut headers = header::HeaderMap::new();
         headers.insert("authorization", HeaderValue::from_str(&self.auth_header)?);
@@ -156,6 +161,8 @@ pub struct WakaTimeClient {
 }
 
 impl WakaTimeClient {
+    /// Fetches the total time logged since the account was created.
+    ///
     /// ## Documentation
     /// * [All Time Since Today](https://wakatime.com/developers#all_time_since_today)
     pub async fn all_time_since_today<'a>(
@@ -172,6 +179,8 @@ impl WakaTimeClient {
         Self::deserialize_as(response, |r: DataWrapper<model::AllTimeSinceToday>| r.data).await
     }
 
+    /// Fetches a single commit of a project, including the time spent on it.
+    ///
     /// ## Documentation
     /// * [Commits](https://wakatime.com/developers#commits)
     pub async fn commit<'a>(
@@ -215,6 +224,8 @@ impl WakaTimeClient {
         Self::deserialize_as(response, |r| r).await
     }
 
+    /// Fetches one page of commits of a project, including the time spent on them.
+    ///
     /// ## Documentation
     /// * [Commits](https://wakatime.com/developers#commits)
     pub async fn commits<'a>(
@@ -252,6 +263,8 @@ impl WakaTimeClient {
         Self::deserialize_as(response, |r| r).await
     }
 
+    /// Fetches the user's heartbeats sent from plugins for the given day.
+    ///
     /// ## Documentation
     /// * [Heartbeats](https://wakatime.com/developers#heartbeats)
     pub async fn heartbeats(&self, date: &str) -> Result<model::Heartbeats, ApiError> {
@@ -441,6 +454,8 @@ impl WakaTimeClient {
         Self::deserialize_as(response, |_: serde_json::Value| ()).await
     }
 
+    /// Fetches the user's custom rules for projects, branches, and entities.
+    ///
     /// ## Documentation
     /// * [Custom Rules](https://wakatime.com/developers#custom_rules)
     pub async fn custom_rules(&self) -> Result<model::CustomRules, ApiError> {
@@ -453,6 +468,8 @@ impl WakaTimeClient {
         Self::deserialize_as(response, |r| r).await
     }
 
+    /// Fetches the progress of a custom rules background job.
+    ///
     /// ## Documentation
     /// * [Custom Rules Progress](https://wakatime.com/developers#custom_rules_progress)
     pub async fn custom_rules_progress(
@@ -472,6 +489,8 @@ impl WakaTimeClient {
         .await
     }
 
+    /// Fetches the user's data dump exports and their status.
+    ///
     /// ## Documentation
     /// * [Data Dumps](https://wakatime.com/developers#data_dumps)
     pub async fn data_dumps(&self) -> Result<model::DataDumps, ApiError> {
@@ -484,6 +503,8 @@ impl WakaTimeClient {
         Self::deserialize_as(response, |r| r).await
     }
 
+    /// Fetches the list of editors with WakaTime plugins.
+    ///
     /// ## Documentation
     /// * [Editors](https://wakatime.com/developers#editors)
     pub async fn editors(&self, options: EditorsOptions) -> Result<model::Editors, ApiError> {
@@ -493,6 +514,8 @@ impl WakaTimeClient {
         Self::deserialize_as(response, |r| r).await
     }
 
+    /// Fetches the user's external durations for the given day.
+    ///
     /// ## Documentation
     /// * [External Durations](https://wakatime.com/developers#external_durations)
     pub async fn external_durations<'a>(
@@ -510,6 +533,8 @@ impl WakaTimeClient {
         Self::deserialize_as(response, |r| r).await
     }
 
+    /// Fetches the user's goals.
+    ///
     /// ## Documentation
     /// * [Goals](https://wakatime.com/developers#goals)
     pub async fn goals(&self) -> Result<model::Goals, ApiError> {
@@ -573,6 +598,8 @@ impl WakaTimeClient {
         Self::deserialize_as(response, |r| r).await
     }
 
+    /// Fetches the machines the user has logged coding activity from.
+    ///
     /// ## Documentation
     /// * [Machine Names](https://wakatime.com/developers#machine_names)
     pub async fn machine_names(&self) -> Result<model::MachineNames, ApiError> {
@@ -585,6 +612,8 @@ impl WakaTimeClient {
         Self::deserialize_as(response, |r| r).await
     }
 
+    /// Fetches WakaTime service metadata, e.g. the IP addresses used by the service.
+    ///
     /// ## Documentation
     /// * [Meta](https://wakatime.com/developers#meta)
     pub async fn meta(&self) -> Result<model::Meta, ApiError> {
@@ -593,6 +622,8 @@ impl WakaTimeClient {
         Self::deserialize_as(response, |r: DataWrapper<model::Meta>| r.data).await
     }
 
+    /// Fetches the organizations the user belongs to.
+    ///
     /// ## Documentation
     /// * [Orgs](https://wakatime.com/developers#orgs)
     pub async fn orgs(&self) -> Result<model::Orgs, ApiError> {
@@ -769,6 +800,8 @@ impl WakaTimeClient {
         Self::deserialize_as(response, |r| r).await
     }
 
+    /// Fetches the leaders of a private leaderboard.
+    ///
     /// ## Documentation
     /// * [Private Leaderboards Leaders](https://wakatime.com/developers#private_leaderboards_leaders)
     pub async fn private_leaderboard_leaders<'a>(
@@ -797,6 +830,8 @@ impl WakaTimeClient {
         Self::deserialize_as(response, |r| r).await
     }
 
+    /// Fetches one page of the user's projects.
+    ///
     /// ## Documentation
     /// * [Projects](https://wakatime.com/developers#projects)
     pub async fn projects<'a>(
@@ -879,6 +914,8 @@ impl WakaTimeClient {
         Ok(all)
     }
 
+    /// Fetches the user's coding activity stats for the given time range.
+    ///
     /// ## Documentation
     /// * [Stats](https://wakatime.com/developers#stats)
     pub async fn stats<'a>(
@@ -928,6 +965,8 @@ impl WakaTimeClient {
         Self::deserialize_as(response, |r| r).await
     }
 
+    /// Fetches the plugin user agents the user has logged coding activity from.
+    ///
     /// ## Documentation
     /// * [User Agents](https://wakatime.com/developers#user_agents)
     pub async fn user_agents(&self) -> Result<model::UserAgents, ApiError> {
@@ -940,6 +979,8 @@ impl WakaTimeClient {
         Self::deserialize_as(response, |r| r).await
     }
 
+    /// Fetches the user's profile.
+    ///
     /// ## Documentation
     /// * [Users](https://wakatime.com/developers#users)
     pub async fn user(&self) -> Result<model::User, ApiError> {
@@ -999,6 +1040,8 @@ pub struct ErrorsResponse {
     pub error: Option<String>,
 }
 
+/// The `data` envelope used by some API responses. Implementation detail.
+#[doc(hidden)]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DataWrapper<T> {
     data: T,
@@ -1015,10 +1058,15 @@ trait IntoQueryString {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[non_exhaustive]
 pub enum Range {
+    /// The last 7 days.
     Last7Days,
+    /// The last 30 days.
     Last30Days,
+    /// The last 6 months.
     Last6Months,
+    /// The last year.
     LastYear,
+    /// All time since the account was created.
     AllTime,
     /// A specific year, e.g. `2024`.
     Year(u16),
@@ -1043,15 +1091,25 @@ impl std::fmt::Display for Range {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[non_exhaustive]
 pub enum InsightType {
+    /// Coding activity per weekday.
     Weekdays,
+    /// Coding activity per day.
     Days,
+    /// The day with the most coding activity.
     BestDay,
+    /// Average coding activity per day.
     DailyAverage,
+    /// Coding activity per project.
     Projects,
+    /// Coding activity per language.
     Languages,
+    /// Coding activity per editor.
     Editors,
+    /// Coding activity per category.
     Categories,
+    /// Coding activity per machine.
     Machines,
+    /// Coding activity per operating system.
     OperatingSystems,
 }
 
@@ -1072,8 +1130,10 @@ impl std::fmt::Display for InsightType {
     }
 }
 
+/// Options for [`WakaTimeClient::all_time_since_today`].
 #[derive(Debug, Default, Clone)]
 pub struct AllTimesSinceTodayOptions<'a> {
+    /// Only show stats for this project.
     pub project: Option<&'a str>,
 }
 
@@ -1083,8 +1143,10 @@ impl<'a> IntoQueryString for AllTimesSinceTodayOptions<'a> {
     }
 }
 
+/// Options for [`WakaTimeClient::commit`].
 #[derive(Debug, Default, Clone)]
 pub struct CommitOptions<'a> {
+    /// Filter the commit to a branch; defaults to the repo's default branch name.
     pub branch: Option<&'a str>,
 }
 
@@ -1094,6 +1156,7 @@ impl<'a> IntoQueryString for CommitOptions<'a> {
     }
 }
 
+/// Options for [`WakaTimeClient::commits`] and [`WakaTimeClient::commits_all`].
 #[derive(Debug, Default, Clone)]
 pub struct CommitsOptions<'a> {
     /// Filter commits to those authored by the given author.
@@ -1113,6 +1176,7 @@ impl<'a> IntoQueryString for CommitsOptions<'a> {
     }
 }
 
+/// Options for [`WakaTimeClient::durations`].
 #[derive(Debug, Default, Clone)]
 pub struct DurationsOptions<'a> {
     /// Only show durations for this project.
@@ -1141,6 +1205,7 @@ impl<'a> IntoQueryString for DurationsOptions<'a> {
     }
 }
 
+/// Options for [`WakaTimeClient::editors`].
 #[derive(Debug, Default, Clone)]
 pub struct EditorsOptions {
     /// Include editors with unreleased plugins.
@@ -1153,6 +1218,7 @@ impl IntoQueryString for EditorsOptions {
     }
 }
 
+/// Options for [`WakaTimeClient::external_durations`].
 #[derive(Debug, Default, Clone)]
 pub struct ExternalDurationsOptions<'a> {
     /// Only show durations for this project.
@@ -1172,6 +1238,7 @@ impl<'a> IntoQueryString for ExternalDurationsOptions<'a> {
     }
 }
 
+/// Options for [`WakaTimeClient::insights`].
 #[derive(Debug, Default, Clone)]
 pub struct InsightsOptions<'a> {
     /// The keystroke timeout value used to calculate the insight.
@@ -1191,6 +1258,7 @@ impl<'a> IntoQueryString for InsightsOptions<'a> {
     }
 }
 
+/// Options for [`WakaTimeClient::leaders`].
 #[derive(Debug, Default, Clone)]
 pub struct LeadersOptions<'a> {
     /// Filter leaders by a specific language.
@@ -1213,6 +1281,8 @@ impl<'a> IntoQueryString for LeadersOptions<'a> {
     }
 }
 
+/// Options for [`WakaTimeClient::org_dashboard_durations`] and
+/// [`WakaTimeClient::org_dashboard_member_durations`].
 #[derive(Debug, Default, Clone)]
 pub struct OrgDurationsOptions<'a> {
     /// Only show durations for this project.
@@ -1232,6 +1302,7 @@ impl<'a> IntoQueryString for OrgDurationsOptions<'a> {
     }
 }
 
+/// Options for [`WakaTimeClient::org_dashboard_summaries`].
 #[derive(Debug, Default, Clone)]
 pub struct OrgSummariesOptions<'a> {
     /// Only show summaries for this project.
@@ -1248,6 +1319,7 @@ impl<'a> IntoQueryString for OrgSummariesOptions<'a> {
     }
 }
 
+/// Options for [`WakaTimeClient::org_dashboard_member_summaries`].
 #[derive(Debug, Default, Clone)]
 pub struct OrgMemberSummariesOptions<'a> {
     /// Only show summaries for this project.
@@ -1267,6 +1339,7 @@ impl<'a> IntoQueryString for OrgMemberSummariesOptions<'a> {
     }
 }
 
+/// Options for [`WakaTimeClient::private_leaderboard_leaders`].
 #[derive(Debug, Default, Clone)]
 pub struct PrivateLeaderboardLeadersOptions<'a> {
     /// Filter leaders by a specific language.
@@ -1286,6 +1359,7 @@ impl<'a> IntoQueryString for PrivateLeaderboardLeadersOptions<'a> {
     }
 }
 
+/// Options for [`WakaTimeClient::projects`].
 #[derive(Debug, Default, Clone)]
 pub struct ProjectsOptions<'a> {
     /// Filter project names by a search term.
@@ -1302,6 +1376,7 @@ impl<'a> IntoQueryString for ProjectsOptions<'a> {
     }
 }
 
+/// Options for [`WakaTimeClient::stats`].
 #[derive(Debug, Default, Clone)]
 pub struct StatsOptions<'a> {
     /// The keystroke timeout value used to calculate these stats.
@@ -1321,13 +1396,20 @@ impl<'a> IntoQueryString for StatsOptions<'a> {
     }
 }
 
+/// Options for [`WakaTimeClient::summaries`].
 #[derive(Debug, Default, Clone)]
 pub struct SummariesOptions<'a> {
+    /// Only show summaries for this project.
     pub project: Option<&'a str>,
+    /// Only show summaries for these branches; comma separated list of branch names.
     pub branches: Option<&'a str>,
+    /// The keystroke timeout preference used when joining heartbeats into durations.
     pub timeout: Option<u32>,
+    /// The writes_only preference.
     pub writes_only: Option<bool>,
+    /// The timezone for the given dates; defaults to the user's timezone.
     pub timezone: Option<&'a str>,
+    /// Alternative way to supply start and end dates, e.g. `Last 7 Days`.
     pub range: Option<&'a str>,
 }
 

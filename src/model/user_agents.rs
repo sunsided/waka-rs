@@ -3,6 +3,7 @@
 use crate::model::pagination::Pagination;
 use serde::{Deserialize, Serialize};
 
+/// Response for [`WakaTimeClient::user_agents`](crate::WakaTimeClient::user_agents).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UserAgents {
     /// The plugin user agents of the user.
@@ -12,6 +13,7 @@ pub struct UserAgents {
     pub pagination: Pagination,
 }
 
+/// A single plugin user agent of the user.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UserAgent {
     /// Unique id of this user agent.

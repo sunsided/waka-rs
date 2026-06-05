@@ -4,6 +4,7 @@ use crate::model::durations::Duration;
 use crate::model::org_dashboards::DashboardMember;
 use serde::{Deserialize, Serialize};
 
+/// Response for [`WakaTimeClient::org_dashboard_durations`](crate::WakaTimeClient::org_dashboard_durations).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OrgDashboardDurations {
     /// Per-member durations for the requested day.

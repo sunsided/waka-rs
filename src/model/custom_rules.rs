@@ -3,6 +3,7 @@
 
 use serde::{Deserialize, Serialize};
 
+/// Response for [`WakaTimeClient::custom_rules`](crate::WakaTimeClient::custom_rules).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CustomRules {
     /// The custom rules of the user.
@@ -34,6 +35,7 @@ pub struct CustomRule {
     pub modified_at: Option<String>,
 }
 
+/// An attribute modified when a custom rule matches.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CustomRuleDestination {
     /// Unique id of this destination.
@@ -85,6 +87,7 @@ pub struct CustomRulesChanges {
     pub job_id: Option<String>,
 }
 
+/// The set of changes applied when replacing custom rules.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CustomRulesChangeSet {
     /// Rules that were added.

@@ -2,6 +2,7 @@
 
 use serde::{Deserialize, Serialize};
 
+/// Response for [`WakaTimeClient::data_dumps`](crate::WakaTimeClient::data_dumps).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DataDumps {
     /// The data dump exports of the user.

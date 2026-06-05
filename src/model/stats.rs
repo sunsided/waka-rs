@@ -2,6 +2,7 @@
 
 use serde::{Deserialize, Serialize};
 
+/// Response for [`WakaTimeClient::stats`](crate::WakaTimeClient::stats).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Stats {
     /// Total coding activity as seconds for the given range of time.

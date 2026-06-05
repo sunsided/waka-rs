@@ -4,6 +4,7 @@
 use crate::model::pagination::Pagination;
 use serde::{Deserialize, Serialize};
 
+/// Response for [`WakaTimeClient::goals`](crate::WakaTimeClient::goals).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Goals {
     /// The goals of the user.
@@ -18,9 +19,11 @@ pub struct Goals {
 pub struct CachedGoal {
     /// Time when this response was cached in ISO 8601 format.
     pub cached_at: Option<String>,
+    /// The goal.
     pub data: Goal,
 }
 
+/// A single coding goal.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Goal {
     /// Unique id of this goal.
@@ -83,6 +86,7 @@ pub struct Goal {
     pub r#type: Option<String>,
 }
 
+/// Progress towards a goal for a single range in the goal's chart.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GoalChartData {
     /// Number of seconds coded during this range.
@@ -93,6 +97,7 @@ pub struct GoalChartData {
     pub goal_seconds: Option<f64>,
     /// Target for this range in human-readable format.
     pub goal_seconds_text: Option<String>,
+    /// The time range this chart entry covers.
     pub range: Option<GoalRange>,
     /// Status of this range: `success`, `fail`, `pending` or `ignored`.
     pub range_status: Option<String>,
@@ -102,6 +107,7 @@ pub struct GoalChartData {
     pub range_status_reason_short: Option<String>,
 }
 
+/// A time range within a goal's chart data.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GoalRange {
     /// This day as Date string in YEAR-MONTH-DAY format; only set when delta is `day`.
@@ -116,6 +122,7 @@ pub struct GoalRange {
     pub timezone: Option<String>,
 }
 
+/// The owner of a goal.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GoalOwner {
     /// Unique id of the owner.
@@ -132,6 +139,7 @@ pub struct GoalOwner {
     pub username: Option<String>,
 }
 
+/// A user a goal is shared with.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GoalSharedWith {
     /// Unique id of the share invitation.
@@ -152,6 +160,7 @@ pub struct GoalSharedWith {
     pub username: Option<String>,
 }
 
+/// A user subscribed to a goal's progress.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GoalSubscriber {
     /// Display name of the subscriber.

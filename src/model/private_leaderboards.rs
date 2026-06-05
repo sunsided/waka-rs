@@ -3,6 +3,7 @@
 use crate::model::pagination::Pagination;
 use serde::{Deserialize, Serialize};
 
+/// Response for [`WakaTimeClient::private_leaderboards`](crate::WakaTimeClient::private_leaderboards).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PrivateLeaderboards {
     /// The private leaderboards the user is a member of.
@@ -12,6 +13,7 @@ pub struct PrivateLeaderboards {
     pub pagination: Pagination,
 }
 
+/// A single private leaderboard the user is a member of.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PrivateLeaderboard {
     /// Unique id of this leaderboard.

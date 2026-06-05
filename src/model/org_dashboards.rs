@@ -4,6 +4,7 @@
 use crate::model::pagination::Pagination;
 use serde::{Deserialize, Serialize};
 
+/// Response for [`WakaTimeClient::org_dashboards`](crate::WakaTimeClient::org_dashboards).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OrgDashboards {
     /// The dashboards of the organization.
@@ -17,6 +18,7 @@ pub struct OrgDashboards {
     pub pagination: Pagination,
 }
 
+/// A single dashboard belonging to an organization.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OrgDashboard {
     /// Unique id of this dashboard.
@@ -57,6 +59,7 @@ pub struct OrgDashboard {
     pub modified_at: Option<String>,
 }
 
+/// Response for [`WakaTimeClient::org_dashboard_members`](crate::WakaTimeClient::org_dashboard_members).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OrgDashboardMembers {
     /// The members of the dashboard.
@@ -70,6 +73,7 @@ pub struct OrgDashboardMembers {
     pub pagination: Pagination,
 }
 
+/// A member of an organization dashboard.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DashboardMember {
     /// Unique id of this user.

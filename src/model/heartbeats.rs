@@ -59,6 +59,7 @@ pub struct CreatedHeartbeat {
     pub time: Option<f64>,
 }
 
+/// Response for [`WakaTimeClient::heartbeats`](crate::WakaTimeClient::heartbeats).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Heartbeats {
     /// The heartbeats for the requested day.
@@ -71,6 +72,7 @@ pub struct Heartbeats {
     pub timezone: Option<String>,
 }
 
+/// A single logged heartbeat.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Heartbeat {
     /// Unique id of this heartbeat.

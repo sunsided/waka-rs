@@ -2,16 +2,20 @@
 
 use serde::{Deserialize, Serialize};
 
+/// Response for [`WakaTimeClient::commit`](crate::WakaTimeClient::commit).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Commits {
+    /// The commit details.
     pub commit: Commit,
     /// Branch name containing the commit.
     pub branch: String,
+    /// The project the commit belongs to.
     pub project: Project,
     /// Project's sync status.
     pub status: String,
 }
 
+/// A single revision control commit.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Commit {
     /// URL of author's avatar image.
@@ -76,6 +80,7 @@ pub struct Commit {
     pub url: String,
 }
 
+/// A project a commit belongs to.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Project {
     /// Unique id of project.
@@ -84,9 +89,11 @@ pub struct Project {
     pub name: String,
     /// Project privacy setting.
     pub privacy: Option<String>,
+    /// The remote repository connected to this project.
     pub repository: Repository,
 }
 
+/// A remote repository connected to a project.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Repository {
     /// Associated repository badge if enabled, otherwise `null`.

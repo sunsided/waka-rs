@@ -34,6 +34,7 @@ pub struct ExternalDurationInput {
     pub meta: Option<String>,
 }
 
+/// Response for [`WakaTimeClient::external_durations`](crate::WakaTimeClient::external_durations).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ExternalDurations {
     /// The external durations for the requested day.

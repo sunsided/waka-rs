@@ -2,6 +2,7 @@
 
 use serde::{Deserialize, Serialize};
 
+/// Response for [`WakaTimeClient::editors`](crate::WakaTimeClient::editors).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Editors {
     /// The editors with WakaTime plugin support.

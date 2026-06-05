@@ -3,6 +3,7 @@
 use crate::model::pagination::Pagination;
 use serde::{Deserialize, Serialize};
 
+/// Response for [`WakaTimeClient::machine_names`](crate::WakaTimeClient::machine_names).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MachineNames {
     /// The machines of the user.
@@ -12,6 +13,7 @@ pub struct MachineNames {
     pub pagination: Pagination,
 }
 
+/// A machine the user has sent heartbeats from.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MachineName {
     /// Unique id of this machine.

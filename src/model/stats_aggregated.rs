@@ -46,6 +46,7 @@ pub struct AggregatedMeasures {
     pub sum: Option<AggregatedValue>,
 }
 
+/// A single aggregated statistic value.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AggregatedValue {
     /// The value as seconds; absent for counts.

@@ -2,6 +2,7 @@
 
 use serde::{Deserialize, Serialize};
 
+/// Response for [`WakaTimeClient::durations`](crate::WakaTimeClient::durations).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Durations {
     /// The durations for the requested day.
@@ -14,6 +15,7 @@ pub struct Durations {
     pub timezone: String,
 }
 
+/// A single period of logged coding activity.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Duration {
     /// Project name for this duration, if any.

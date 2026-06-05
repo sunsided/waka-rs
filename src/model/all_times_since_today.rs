@@ -2,6 +2,7 @@
 
 use serde::{Deserialize, Serialize};
 
+/// Response for [`WakaTimeClient::all_time_since_today`](crate::WakaTimeClient::all_time_since_today).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AllTimeSinceToday {
     /// Total coding activity in decimal format.
@@ -12,6 +13,7 @@ pub struct AllTimeSinceToday {
     pub is_up_to_date: bool,
     /// A number between 0 and 100 where 100 means the stats are up to date including Today’s time.
     pub percent_calculated: Option<u32>,
+    /// Time range covered by these stats.
     pub range: AllTimeSinceTodayRange,
     /// Total time logged since account created as human readable string.
     pub text: String,
@@ -21,6 +23,7 @@ pub struct AllTimeSinceToday {
     pub total_seconds: f64,
 }
 
+/// Time range covered by the all-time stats.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AllTimeSinceTodayRange {
     /// End of today as ISO 8601 UTC datetime.

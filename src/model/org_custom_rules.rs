@@ -3,6 +3,7 @@
 use crate::model::custom_rules::CustomRuleDestination;
 use serde::{Deserialize, Serialize};
 
+/// Response for [`WakaTimeClient::org_custom_rules`](crate::WakaTimeClient::org_custom_rules).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OrgCustomRules {
     /// The custom rules of the organization.

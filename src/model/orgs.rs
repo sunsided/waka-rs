@@ -3,6 +3,7 @@
 use crate::model::pagination::Pagination;
 use serde::{Deserialize, Serialize};
 
+/// Response for [`WakaTimeClient::orgs`](crate::WakaTimeClient::orgs).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Orgs {
     /// The organizations the user is a member of.
@@ -12,6 +13,7 @@ pub struct Orgs {
     pub pagination: Pagination,
 }
 
+/// A single organization the user is a member of.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Org {
     /// Unique id of this organization.

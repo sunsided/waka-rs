@@ -2,6 +2,7 @@
 
 use serde::{Deserialize, Serialize};
 
+/// Response for [`WakaTimeClient::user`](crate::WakaTimeClient::user).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct User {
     /// Unique id of user.

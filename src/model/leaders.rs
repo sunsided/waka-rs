@@ -3,6 +3,7 @@
 use crate::model::pagination::Pagination;
 use serde::{Deserialize, Serialize};
 
+/// Response for [`WakaTimeClient::leaders`](crate::WakaTimeClient::leaders).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Leaders {
     /// The authorized user's rank, if they are on the leaderboard.
@@ -28,23 +29,29 @@ pub struct Leaders {
     pub pagination: Pagination,
 }
 
+/// The authorized user's position on a leaderboard.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CurrentUserRank {
     /// Rank of the authorized user, or `null` if not on this leaderboard.
     pub rank: Option<u32>,
     /// Page containing the authorized user, or `null` if not on this leaderboard.
     pub page: Option<u32>,
+    /// The authorized user.
     pub user: Option<LeaderUser>,
 }
 
+/// A single ranked user on a leaderboard.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LeaderboardEntry {
     /// Rank of this leader.
     pub rank: u32,
+    /// Running total of this leader's coding activity.
     pub running_total: Option<RunningTotal>,
+    /// The ranked user.
     pub user: LeaderUser,
 }
 
+/// A leader's running total of coding activity over the leaderboard range.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RunningTotal {
     /// Total coding activity for this user as seconds.
@@ -59,6 +66,7 @@ pub struct RunningTotal {
     pub languages: Option<Vec<LeaderLanguage>>,
 }
 
+/// Coding activity in a single language for a leader.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LeaderLanguage {
     /// Language name.
@@ -67,6 +75,7 @@ pub struct LeaderLanguage {
     pub total_seconds: f64,
 }
 
+/// A user appearing on a leaderboard.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LeaderUser {
     /// Unique id of the user.
@@ -95,6 +104,7 @@ pub struct LeaderUser {
     pub photo: Option<String>,
 }
 
+/// The location of a leader.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LeaderCity {
     /// Two-character country code.
@@ -107,6 +117,7 @@ pub struct LeaderCity {
     pub title: Option<String>,
 }
 
+/// The time range covered by a leaderboard.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LeadersRange {
     /// Start of the range as ISO 8601 UTC datetime.

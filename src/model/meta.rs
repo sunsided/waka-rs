@@ -14,6 +14,7 @@ pub struct Meta {
     pub last_modified_at: Option<String>,
 }
 
+/// Public IP addresses used by WakaTime servers, grouped by role.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MetaIps {
     /// Public IPs of the api.wakatime.com servers.
@@ -24,6 +25,7 @@ pub struct MetaIps {
     pub worker: Option<MetaIpList>,
 }
 
+/// A list of IPv4 and IPv6 addresses.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MetaIpList {
     /// IPv4 addresses.

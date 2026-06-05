@@ -4,6 +4,7 @@ use crate::model::commit::{Commit, Project};
 use crate::model::pagination::Pagination;
 use serde::{Deserialize, Serialize};
 
+/// Response for [`WakaTimeClient::commits`](crate::WakaTimeClient::commits).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CommitsPage {
     /// The commits on this page.
@@ -16,6 +17,7 @@ pub struct CommitsPage {
     pub author: Option<String>,
     /// Branch name containing the commits.
     pub branch: Option<String>,
+    /// The project the commits belong to.
     pub project: Option<Project>,
     /// Project's sync status.
     pub status: Option<String>,

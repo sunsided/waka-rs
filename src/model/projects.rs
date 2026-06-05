@@ -3,6 +3,7 @@
 use crate::model::pagination::Pagination;
 use serde::{Deserialize, Serialize};
 
+/// Response for [`WakaTimeClient::projects`](crate::WakaTimeClient::projects).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Projects {
     /// The projects of the user.
@@ -12,6 +13,7 @@ pub struct Projects {
     pub pagination: Pagination,
 }
 
+/// A single project of the user.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ProjectSummary {
     /// Unique id of project.

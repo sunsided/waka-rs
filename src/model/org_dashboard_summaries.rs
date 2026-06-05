@@ -8,6 +8,7 @@ use crate::model::summaries::{
 };
 use serde::{Deserialize, Serialize};
 
+/// Response for [`WakaTimeClient::org_dashboard_summaries`](crate::WakaTimeClient::org_dashboard_summaries).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OrgDashboardSummaries {
     /// Per-member summaries for the requested day.
@@ -21,18 +22,25 @@ pub struct OrgDashboardSummaries {
 pub struct OrgSummary {
     /// The member this summary belongs to.
     pub member: Option<DashboardMember>,
+    /// Total coding activity for this day.
     pub grand_total: SummaryGrandTotal,
+    /// Coding activity broken down per project.
     pub projects: Option<Vec<SummaryProject>>,
+    /// Coding activity broken down per language.
     pub languages: Option<Vec<SummaryLanguage>>,
+    /// Coding activity broken down per editor.
     pub editors: Option<Vec<SummaryEditor>>,
+    /// Coding activity broken down per operating system.
     pub operating_systems: Option<Vec<SummaryOperatingSystem>>,
     /// Included only when the project url parameter is used.
     pub branches: Option<Vec<SummaryBranch>>,
     /// Included only when the project url parameter is used.
     pub entities: Option<Vec<SummaryEntity>>,
+    /// Time range covered by this summary.
     pub range: SummaryRange,
 }
 
+/// Response for [`WakaTimeClient::org_dashboard_member_summaries`](crate::WakaTimeClient::org_dashboard_member_summaries).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OrgMemberSummaries {
     /// The member's summaries, one per day in the requested range.

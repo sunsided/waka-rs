@@ -3,6 +3,7 @@
 use crate::model::pagination::Pagination;
 use serde::{Deserialize, Serialize};
 
+/// Response for [`WakaTimeClient::program_languages`](crate::WakaTimeClient::program_languages).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ProgramLanguages {
     /// The programming languages known to WakaTime.
@@ -12,6 +13,7 @@ pub struct ProgramLanguages {
     pub pagination: Pagination,
 }
 
+/// A single programming language known to WakaTime.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ProgramLanguage {
     /// Unique id of this language.
