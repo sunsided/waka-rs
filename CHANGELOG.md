@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.2.1] - 2026-06-05
 
+### Added
+
+- New `waka-cli` crate: a clap-based command-line client covering every
+  endpoint of the library, with `.env` support (dotenvy), environment
+  variable configuration (`WAKATIME_API_KEY`, `WAKATIME_BEARER_TOKEN`,
+  `WAKATIME_USER`, `WAKATIME_BASE_URL`, `WAKATIME_TIMEOUT`), human-readable
+  output by default and a `--json` flag for raw API responses.
+
 ### Changed
 
 - The repository is now a Cargo workspace; the library lives in `waka/`

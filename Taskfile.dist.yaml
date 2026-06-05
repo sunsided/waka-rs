@@ -14,6 +14,14 @@ tasks:
     cmds:
       - cargo build --workspace --all-targets
 
+  run:
+    desc: Run the waka-cli binary (pass args after --)
+    preconditions:
+      - sh: command -v cargo
+        msg: "cargo not found — install Rust from https://rustup.rs/"
+    cmds:
+      - cargo run -p waka-cli -- {{.CLI_ARGS}}
+
   test:
     desc: Run the test suite (pass extra args after --)
     preconditions:
