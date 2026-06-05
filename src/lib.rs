@@ -32,8 +32,8 @@ use reqwest::header::HeaderValue;
 use reqwest::{header, Client, ClientBuilder, Response};
 use serde::{Deserialize, Serialize};
 
-static BASE_URL: &'static str = "https://wakatime.com/api/v1/";
-const CURRENT_USER: &'static str = "current";
+static BASE_URL: &str = "https://wakatime.com/api/v1/";
+const CURRENT_USER: &str = "current";
 
 /// A builder for [`WakaTimeClient`] instances.
 #[derive(Default)]
@@ -173,7 +173,7 @@ pub struct AllTimesSinceTodayOptions<'a> {
 
 impl<'a> IntoQueryString for AllTimesSinceTodayOptions<'a> {
     fn into_query_string(self) -> QueryString {
-        QueryString::new().with_opt_value("project", self.project)
+        QueryString::dynamic().with_opt_value("project", self.project)
     }
 }
 
@@ -184,7 +184,7 @@ pub struct CommitOptions<'a> {
 
 impl<'a> IntoQueryString for CommitOptions<'a> {
     fn into_query_string(self) -> QueryString {
-        QueryString::new().with_opt_value("branch", self.branch)
+        QueryString::dynamic().with_opt_value("branch", self.branch)
     }
 }
 
@@ -200,7 +200,7 @@ pub struct SummariesOptions<'a> {
 
 impl<'a> IntoQueryString for SummariesOptions<'a> {
     fn into_query_string(self) -> QueryString {
-        QueryString::new()
+        QueryString::dynamic()
             .with_opt_value("project", self.project)
             .with_opt_value("branches", self.branches)
             .with_opt_value("timeout", self.timeout.map(|v| v.to_string()))
