@@ -142,9 +142,21 @@ impl WakaTimeClient {
                 Err(e) => Err(ApiError::InvalidFormat(e)),
             },
             other => {
+                let retry_after = response
+                    .headers()
+                    .get(header::RETRY_AFTER)
+                    .and_then(|v| v.to_str().ok())
+                    .and_then(|v| v.parse::<u64>().ok());
                 let errors = response.json::<ErrorsResponse>().await.ok();
                 match other {
                     401 => Err(ApiError::Unauthorized(errors)),
+                    402 => Err(ApiError::PaymentRequired(errors)),
+                    403 => Err(ApiError::Forbidden(errors)),
+                    404 => Err(ApiError::NotFound(errors)),
+                    429 => Err(ApiError::RateLimited {
+                        retry_after,
+                        errors,
+                    }),
                     other => Err(ApiError::Unspecified(other, errors)),
                 }
             }
