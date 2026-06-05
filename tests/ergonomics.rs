@@ -120,6 +120,23 @@ async fn projects_all_fetches_every_page() {
 }
 
 #[tokio::test]
+async fn path_parameters_are_percent_encoded() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path("/users/current/projects/my%20project%2Fx/commits"))
+        .respond_with(json_response(include_str!("fixtures/commits.json")))
+        .expect(1)
+        .mount(&server)
+        .await;
+
+    let client = common::client_for(&server);
+    client
+        .commits("my project/x", waka::CommitsOptions::default())
+        .await
+        .expect("request failed");
+}
+
+#[tokio::test]
 async fn projects_single_page_still_works() {
     let server = MockServer::start().await;
     Mock::given(method("GET"))

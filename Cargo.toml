@@ -13,6 +13,7 @@ categories = ["api-bindings", "web-programming::http-client"]
 
 [dependencies]
 base64 = "0.22"
+percent-encoding = "2"
 query-string-builder = "0.6"
 reqwest = { version = "0.13", features = ["json"] }
 serde = { version = "1.0", features = ["derive"] }

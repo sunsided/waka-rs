@@ -32,6 +32,7 @@ pub mod model;
 pub use crate::api_error::ApiError;
 pub use crate::builder_error::BuilderError;
 use base64::Engine;
+use percent_encoding::{AsciiSet, CONTROLS, utf8_percent_encode};
 use query_string_builder::QueryString;
 use reqwest::header::HeaderValue;
 use reqwest::{Client, ClientBuilder, Response, header};
@@ -39,6 +40,27 @@ use serde::{Deserialize, Serialize};
 
 static BASE_URL: &str = "https://wakatime.com/api/v1/";
 const CURRENT_USER: &str = "current";
+
+/// Characters that must be percent-encoded in a URL path segment (RFC 3986),
+/// including `/` so that user-provided values cannot extend the path.
+const PATH_SEGMENT: &AsciiSet = &CONTROLS
+    .add(b' ')
+    .add(b'"')
+    .add(b'#')
+    .add(b'<')
+    .add(b'>')
+    .add(b'?')
+    .add(b'`')
+    .add(b'{')
+    .add(b'}')
+    .add(b'%')
+    .add(b'/')
+    .add(b'\\');
+
+/// Percent-encodes a user-provided value for use as a single URL path segment.
+fn encode_path_segment(segment: &str) -> std::borrow::Cow<'_, str> {
+    utf8_percent_encode(segment, PATH_SEGMENT).into()
+}
 
 /// A builder for [`WakaTimeClient`] instances.
 #[derive(Default)]
@@ -76,6 +98,9 @@ impl WakaTimeClientBuilder {
     }
 
     /// Specifies a user to focus on. If unspecified, `current` is used.
+    ///
+    /// The value is percent-encoded when building the client, so it can be
+    /// passed verbatim.
     pub fn with_user<S: AsRef<str>>(mut self, user: S) -> Self {
         self.user = Some(user.as_ref().to_string());
         self
@@ -111,9 +136,10 @@ impl WakaTimeClientBuilder {
         }
         let client = builder.build()?;
 
+        let user = self.user.unwrap_or_else(|| CURRENT_USER.to_string());
         Ok(WakaTimeClient {
             client,
-            user: self.user.unwrap_or_else(|| CURRENT_USER.to_string()),
+            user: encode_path_segment(&user).into_owned(),
             base_url: self.base_url.unwrap_or_else(|| BASE_URL.to_string()),
         })
     }
@@ -158,12 +184,16 @@ impl WakaTimeClient {
         let url = format!(
             "{base_url}users/{user}/projects/{project}/commits/{hash}{qs}",
             base_url = self.base_url,
-            user = self.user
+            user = self.user,
+            project = encode_path_segment(project),
+            hash = encode_path_segment(hash)
         );
         let response = self.client.get(url).send().await?;
         Self::deserialize_as(response, |r| r).await
     }
 
+    /// Fetches the user's coding activity for the given time range as daily summaries.
+    ///
     /// ## Documentation
     /// * [Summaries](https://wakatime.com/developers#summaries)
     pub async fn summaries<'a>(
@@ -196,12 +226,15 @@ impl WakaTimeClient {
         let url = format!(
             "{base_url}users/{user}/projects/{project}/commits{qs}",
             base_url = self.base_url,
-            user = self.user
+            user = self.user,
+            project = encode_path_segment(project)
         );
         let response = self.client.get(url).send().await?;
         Self::deserialize_as(response, |r| r).await
     }
 
+    /// Fetches the user's coding activity for the given day as an array of durations.
+    ///
     /// ## Documentation
     /// * [Durations](https://wakatime.com/developers#durations)
     pub async fn durations<'a>(
@@ -387,7 +420,8 @@ impl WakaTimeClient {
         let url = format!(
             "{base_url}users/{user}/custom_rules/{rule_id}",
             base_url = self.base_url,
-            user = self.user
+            user = self.user,
+            rule_id = encode_path_segment(rule_id)
         );
         let response = self.client.delete(url).send().await?;
         Self::deserialize_as(response, |_: serde_json::Value| ()).await
@@ -488,18 +522,23 @@ impl WakaTimeClient {
         Self::deserialize_as(response, |r| r).await
     }
 
+    /// Fetches a single goal of the user.
+    ///
     /// ## Documentation
     /// * [Goal](https://wakatime.com/developers#goal)
     pub async fn goal(&self, goal: &str) -> Result<model::CachedGoal, ApiError> {
         let url = format!(
             "{base_url}users/{user}/goals/{goal}",
             base_url = self.base_url,
-            user = self.user
+            user = self.user,
+            goal = encode_path_segment(goal)
         );
         let response = self.client.get(url).send().await?;
         Self::deserialize_as(response, |r| r).await
     }
 
+    /// Fetches an insight about the user's coding activity for the given time range.
+    ///
     /// ## Documentation
     /// * [Insights](https://wakatime.com/developers#insights)
     pub async fn insights<'a>(
@@ -512,12 +551,16 @@ impl WakaTimeClient {
         let url = format!(
             "{base_url}users/{user}/insights/{insight_type}/{range}{qs}",
             base_url = self.base_url,
-            user = self.user
+            user = self.user,
+            insight_type = encode_path_segment(&insight_type.to_string()),
+            range = encode_path_segment(&range.to_string())
         );
         let response = self.client.get(url).send().await?;
         Self::deserialize_as(response, |r: DataWrapper<model::Insight>| r.data).await
     }
 
+    /// Fetches the public leaderboard of users ranked by coding activity.
+    ///
     /// ## Documentation
     /// * [Leaders](https://wakatime.com/developers#leaders)
     pub async fn leaders<'a>(
@@ -562,30 +605,38 @@ impl WakaTimeClient {
         Self::deserialize_as(response, |r| r).await
     }
 
+    /// Fetches the custom rules of an organization.
+    ///
     /// ## Documentation
     /// * [Org Custom Rules](https://wakatime.com/developers#org_custom_rules)
     pub async fn org_custom_rules(&self, org: &str) -> Result<model::OrgCustomRules, ApiError> {
         let url = format!(
             "{base_url}users/{user}/orgs/{org}/custom_rules",
             base_url = self.base_url,
-            user = self.user
+            user = self.user,
+            org = encode_path_segment(org)
         );
         let response = self.client.get(url).send().await?;
         Self::deserialize_as(response, |r| r).await
     }
 
+    /// Fetches the dashboards of an organization.
+    ///
     /// ## Documentation
     /// * [Org Dashboards](https://wakatime.com/developers#org_dashboards)
     pub async fn org_dashboards(&self, org: &str) -> Result<model::OrgDashboards, ApiError> {
         let url = format!(
             "{base_url}users/{user}/orgs/{org}/dashboards",
             base_url = self.base_url,
-            user = self.user
+            user = self.user,
+            org = encode_path_segment(org)
         );
         let response = self.client.get(url).send().await?;
         Self::deserialize_as(response, |r| r).await
     }
 
+    /// Fetches the members of an organization's dashboard.
+    ///
     /// ## Documentation
     /// * [Org Dashboard Members](https://wakatime.com/developers#org_dashboard_members)
     pub async fn org_dashboard_members(
@@ -596,12 +647,16 @@ impl WakaTimeClient {
         let url = format!(
             "{base_url}users/{user}/orgs/{org}/dashboards/{dashboard}/members",
             base_url = self.base_url,
-            user = self.user
+            user = self.user,
+            org = encode_path_segment(org),
+            dashboard = encode_path_segment(dashboard)
         );
         let response = self.client.get(url).send().await?;
         Self::deserialize_as(response, |r| r).await
     }
 
+    /// Fetches a dashboard's coding activity for the given day as an array of durations.
+    ///
     /// ## Documentation
     /// * [Org Dashboard Durations](https://wakatime.com/developers#org_dashboard_durations)
     pub async fn org_dashboard_durations<'a>(
@@ -615,12 +670,16 @@ impl WakaTimeClient {
         let url = format!(
             "{base_url}users/{user}/orgs/{org}/dashboards/{dashboard}/durations{qs}",
             base_url = self.base_url,
-            user = self.user
+            user = self.user,
+            org = encode_path_segment(org),
+            dashboard = encode_path_segment(dashboard)
         );
         let response = self.client.get(url).send().await?;
         Self::deserialize_as(response, |r| r).await
     }
 
+    /// Fetches a dashboard's coding activity for the given day as a summary.
+    ///
     /// ## Documentation
     /// * [Org Dashboard Summaries](https://wakatime.com/developers#org_dashboard_summaries)
     pub async fn org_dashboard_summaries<'a>(
@@ -634,12 +693,16 @@ impl WakaTimeClient {
         let url = format!(
             "{base_url}users/{user}/orgs/{org}/dashboards/{dashboard}/summaries{qs}",
             base_url = self.base_url,
-            user = self.user
+            user = self.user,
+            org = encode_path_segment(org),
+            dashboard = encode_path_segment(dashboard)
         );
         let response = self.client.get(url).send().await?;
         Self::deserialize_as(response, |r| r).await
     }
 
+    /// Fetches a dashboard member's coding activity for the given day as an array of durations.
+    ///
     /// ## Documentation
     /// * [Org Dashboard Member Durations](https://wakatime.com/developers#org_dashboard_member_durations)
     pub async fn org_dashboard_member_durations<'a>(
@@ -654,12 +717,17 @@ impl WakaTimeClient {
         let url = format!(
             "{base_url}users/{user}/orgs/{org}/dashboards/{dashboard}/members/{member}/durations{qs}",
             base_url = self.base_url,
-            user = self.user
+            user = self.user,
+            org = encode_path_segment(org),
+            dashboard = encode_path_segment(dashboard),
+            member = encode_path_segment(member)
         );
         let response = self.client.get(url).send().await?;
         Self::deserialize_as(response, |r| r).await
     }
 
+    /// Fetches a dashboard member's coding activity for the given time range as daily summaries.
+    ///
     /// ## Documentation
     /// * [Org Dashboard Member Summaries](https://wakatime.com/developers#org_dashboard_member_summaries)
     pub async fn org_dashboard_member_summaries<'a>(
@@ -678,12 +746,17 @@ impl WakaTimeClient {
         let url = format!(
             "{base_url}users/{user}/orgs/{org}/dashboards/{dashboard}/members/{member}/summaries{qs}",
             base_url = self.base_url,
-            user = self.user
+            user = self.user,
+            org = encode_path_segment(org),
+            dashboard = encode_path_segment(dashboard),
+            member = encode_path_segment(member)
         );
         let response = self.client.get(url).send().await?;
         Self::deserialize_as(response, |r| r).await
     }
 
+    /// Fetches the user's private leaderboards.
+    ///
     /// ## Documentation
     /// * [Private Leaderboards](https://wakatime.com/developers#private_leaderboards)
     pub async fn private_leaderboards(&self) -> Result<model::PrivateLeaderboards, ApiError> {
@@ -707,12 +780,15 @@ impl WakaTimeClient {
         let url = format!(
             "{base_url}users/{user}/leaderboards/{board}{qs}",
             base_url = self.base_url,
-            user = self.user
+            user = self.user,
+            board = encode_path_segment(board)
         );
         let response = self.client.get(url).send().await?;
         Self::deserialize_as(response, |r| r).await
     }
 
+    /// Fetches the list of programming languages known to WakaTime.
+    ///
     /// ## Documentation
     /// * [Program Languages](https://wakatime.com/developers#program_languages)
     pub async fn program_languages(&self) -> Result<model::ProgramLanguages, ApiError> {
@@ -814,23 +890,32 @@ impl WakaTimeClient {
         let url = format!(
             "{base_url}users/{user}/stats/{range}{qs}",
             base_url = self.base_url,
-            user = self.user
+            user = self.user,
+            range = encode_path_segment(&range.to_string())
         );
         let response = self.client.get(url).send().await?;
         Self::deserialize_as(response, |r: DataWrapper<model::Stats>| r.data).await
     }
 
+    /// Fetches aggregate stats of all WakaTime users for the given time range.
+    ///
     /// ## Documentation
     /// * [Stats Aggregated](https://wakatime.com/developers#stats_aggregated)
     pub async fn stats_aggregated(
         &self,
         range: impl std::fmt::Display,
     ) -> Result<model::AggregatedStats, ApiError> {
-        let url = format!("{base_url}stats/{range}", base_url = self.base_url);
+        let url = format!(
+            "{base_url}stats/{range}",
+            base_url = self.base_url,
+            range = encode_path_segment(&range.to_string())
+        );
         let response = self.client.get(url).send().await?;
         Self::deserialize_as(response, |r: DataWrapper<model::AggregatedStats>| r.data).await
     }
 
+    /// Fetches the user's coding activity for today, as used by editor status bars.
+    ///
     /// ## Documentation
     /// * [Status Bar](https://wakatime.com/developers#status_bar)
     pub async fn status_bar_today(&self) -> Result<model::StatusBar, ApiError> {
