@@ -1,0 +1,98 @@
+name: Release
+
+on:
+  push:
+    tags: [ "v*" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-musl
+          - os: macos-latest
+            target: aarch64-apple-darwin
+          - os: macos-latest
+            target: x86_64-apple-darwin
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: dtolnay/rust-toolchain@stable
+      with:
+        targets: ${{ matrix.target }}
+
+    - name: Install musl tools
+      if: matrix.target == 'x86_64-unknown-linux-musl'
+      run: sudo apt-get update && sudo apt-get install -y musl-tools
+
+    - name: Build
+      run: cargo build --release -p waka-cli --target ${{ matrix.target }}
+
+    - name: Package (Unix)
+      if: runner.os != 'Windows'
+      shell: bash
+      run: |
+        version="${GITHUB_REF_NAME#v}"
+        dir="waka-cli-${version}-${{ matrix.target }}"
+        mkdir "$dir"
+        cp "target/${{ matrix.target }}/release/waka-cli" "$dir/"
+        cp waka-cli/README.md LICENSE.md CHANGELOG.md "$dir/"
+        tar -czf "$dir.tar.gz" "$dir"
+        if command -v sha256sum >/dev/null; then
+          sha256sum "$dir.tar.gz" > "$dir.tar.gz.sha256"
+        else
+          shasum -a 256 "$dir.tar.gz" > "$dir.tar.gz.sha256"
+        fi
+
+    - name: Package (Windows)
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: |
+        $version = $env:GITHUB_REF_NAME -replace '^v', ''
+        $dir = "waka-cli-$version-${{ matrix.target }}"
+        New-Item -ItemType Directory -Path $dir | Out-Null
+        Copy-Item "target/${{ matrix.target }}/release/waka-cli.exe" $dir/
+        Copy-Item waka-cli/README.md, LICENSE.md, CHANGELOG.md $dir/
+        Compress-Archive -Path $dir -DestinationPath "$dir.zip"
+        $hash = (Get-FileHash "$dir.zip" -Algorithm SHA256).Hash.ToLower()
+        "$hash  $dir.zip" | Out-File -Encoding ascii "$dir.zip.sha256"
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: waka-cli-${{ matrix.target }}
+        path: |
+          waka-cli-*.tar.gz
+          waka-cli-*.tar.gz.sha256
+          waka-cli-*.zip
+          waka-cli-*.zip.sha256
+        if-no-files-found: error
+
+  release:
+    name: Attach artifacts to release
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/download-artifact@v4
+      with:
+        path: artifacts
+        merge-multiple: true
+
+    - uses: softprops/action-gh-release@v2
+      with:
+        files: artifacts/*
+        generate_release_notes: true
