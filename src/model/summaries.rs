@@ -35,9 +35,9 @@ pub struct SummaryCategory {
     /// Name of category, for ex: Coding or Debugging.
     pub name: String,
     /// Total coding activity as seconds.
-    pub total_seconds: f32,
+    pub total_seconds: f64,
     /// Percent of time spent in this category.
-    pub percent: f32,
+    pub percent: f64,
     /// Total coding activity for this category in digital clock format.
     pub digital: String,
     /// Total coding activity in human readable format.
@@ -53,9 +53,9 @@ pub struct SummaryProject {
     /// Project name.
     pub name: String,
     /// Total coding activity as seconds.
-    pub total_seconds: f32,
+    pub total_seconds: f64,
     /// Percent of time spent in this project.
-    pub percent: f32,
+    pub percent: f64,
     /// Total coding activity for this project in digital clock format.
     pub digital: String,
     /// Total coding activity in human readable format.
@@ -71,9 +71,9 @@ pub struct SummaryLanguage {
     /// Language name.
     pub name: String,
     /// Total coding activity spent in this language as seconds.
-    pub total_seconds: f32,
+    pub total_seconds: f64,
     /// Percent of time spent in this language.
-    pub percent: f32,
+    pub percent: f64,
     /// Total coding activity for this language in digital clock format.
     pub digital: String,
     /// Total coding activity in human readable format.
@@ -81,9 +81,9 @@ pub struct SummaryLanguage {
     /// Hours portion of coding activity for this language.
     pub hours: u32,
     /// Minutes portion of coding activity for this language.
-    pub minutes: u8,
+    pub minutes: u32,
     /// Seconds portion of coding activity for this language.
-    pub seconds: u8,
+    pub seconds: u32,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -91,9 +91,9 @@ pub struct SummaryEditor {
     /// Editor name.
     pub name: String,
     /// Total coding activity spent in this editor as seconds.
-    pub total_seconds: f32,
+    pub total_seconds: f64,
     /// Percent of time spent in this editor.
-    pub percent: f32,
+    pub percent: f64,
     /// Total coding activity for this editor in digital clock format.
     pub digital: String,
     /// Total coding activity in human readable format.
@@ -101,9 +101,9 @@ pub struct SummaryEditor {
     /// Hours portion of coding activity for this editor.
     pub hours: u32,
     /// Minutes portion of coding activity for this editor.
-    pub minutes: u8,
+    pub minutes: u32,
     /// Seconds portion of coding activity for this editor.
-    pub seconds: u8,
+    pub seconds: u32,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -111,9 +111,9 @@ pub struct SummaryOperatingSystem {
     /// OS name.
     pub name: String,
     /// Total coding activity spent in this OS as seconds.
-    pub total_seconds: f32,
+    pub total_seconds: f64,
     /// Percent of time spent in this OS.
-    pub percent: f32,
+    pub percent: f64,
     /// Total coding activity for this OS in digital clock format.
     pub digital: String,
     /// Total coding activity in human readable format.
@@ -121,9 +121,9 @@ pub struct SummaryOperatingSystem {
     /// Hours portion of coding activity for this OS.
     pub hours: u32,
     /// Minutes portion of coding activity for this OS.
-    pub minutes: u8,
+    pub minutes: u32,
     /// Seconds portion of coding activity for this OS.
-    pub seconds: u8,
+    pub seconds: u32,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -131,9 +131,9 @@ pub struct SummaryDependency {
     /// Dependency name.
     pub name: String,
     /// Total coding activity spent in this dependency as seconds.
-    pub total_seconds: f32,
+    pub total_seconds: f64,
     /// Percent of time spent in this dependency.
-    pub percent: f32,
+    pub percent: f64,
     /// Total coding activity for this dependency in digital clock format.
     pub digital: String,
     /// Total coding activity in human readable format.
@@ -141,9 +141,9 @@ pub struct SummaryDependency {
     /// Hours portion of coding activity for this dependency.
     pub hours: u32,
     /// Minutes portion of coding activity for this dependency.
-    pub minutes: u8,
+    pub minutes: u32,
     /// Seconds portion of coding activity for this dependency.
-    pub seconds: u8,
+    pub seconds: u32,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -153,9 +153,9 @@ pub struct SummaryMachine {
     /// Unique id of this machine.
     pub machine_name_id: String,
     /// Total coding activity spent on this machine as seconds.
-    pub total_seconds: f32,
+    pub total_seconds: f64,
     /// Percent of time spent on this machine.
-    pub percent: f32,
+    pub percent: f64,
     /// Total coding activity for this machine in digital clock format.
     pub digital: String,
     /// Total coding activity in human readable format.
@@ -163,9 +163,9 @@ pub struct SummaryMachine {
     /// Hours portion of coding activity for this machine.
     pub hours: u32,
     /// Minutes portion of coding activity for this machine.
-    pub minutes: u8,
+    pub minutes: u32,
     /// Seconds portion of coding activity for this machine.
-    pub seconds: u8,
+    pub seconds: u32,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -173,9 +173,9 @@ pub struct SummaryBranch {
     /// Branch name.
     pub name: String,
     /// Total coding activity spent in this branch as seconds.
-    pub total_seconds: f32,
+    pub total_seconds: f64,
     /// Percent of time spent in this branch.
-    pub percent: f32,
+    pub percent: f64,
     /// Total coding activity for this branch in digital clock format.
     pub digital: String,
     /// Total coding activity in human readable format.
@@ -183,9 +183,9 @@ pub struct SummaryBranch {
     /// Hours portion of coding activity for this branch.
     pub hours: u32,
     /// Minutes portion of coding activity for this branch.
-    pub minutes: u8,
+    pub minutes: u32,
     /// Seconds portion of coding activity for this branch.
-    pub seconds: u8,
+    pub seconds: u32,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -195,11 +195,11 @@ pub struct SummaryGrandTotal {
     /// Hours portion of coding activity for this entity.
     pub hours: u32,
     /// Minutes portion of coding activity for this entity.
-    pub minutes: u8,
+    pub minutes: u32,
     /// Total coding activity in human readable format.
     pub text: String,
     /// Total coding activity as seconds.
-    pub total_seconds: f32,
+    pub total_seconds: f64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -207,9 +207,9 @@ pub struct SummaryEntity {
     /// Entity name.
     pub name: String,
     /// Total coding activity spent in this entity as seconds.
-    pub total_seconds: f32,
+    pub total_seconds: f64,
     /// Percent of time spent in this entity.
-    pub percent: f32,
+    pub percent: f64,
     /// Total coding activity for this entity in digital clock format.
     pub digital: String,
     /// Total coding activity in human readable format.
@@ -217,9 +217,9 @@ pub struct SummaryEntity {
     /// Hours portion of coding activity for this entity.
     pub hours: u32,
     /// Minutes portion of coding activity for this entity.
-    pub minutes: u8,
+    pub minutes: u32,
     /// Seconds portion of coding activity for this entity.
-    pub seconds: u8,
+    pub seconds: u32,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -239,7 +239,7 @@ pub struct SummaryRange {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CumulativeTotalSummary {
     /// Cumulative number of seconds over the date range of summaries.
-    pub seconds: f32,
+    pub seconds: f64,
     /// Cumulative total coding activity in human readable format.
     pub text: String,
     /// Cumulative total as a decimal.
@@ -257,11 +257,11 @@ pub struct DailyAverageSummary {
     /// Number of days in this range excluding days with no activity.
     pub days_minus_holidays: u32,
     /// Average coding activity per day as seconds for the given range of time, excluding Other language.
-    pub seconds: f32,
+    pub seconds: f64,
     /// Daily average, excluding Other language, as human readable string.
     pub text: String,
     /// Average coding activity per day as seconds for the given range of time.
-    pub seconds_including_other_language: f32,
+    pub seconds_including_other_language: f64,
     /// Daily average as human readable string.
     pub text_including_other_language: String,
 }
