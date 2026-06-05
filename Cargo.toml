@@ -2,7 +2,7 @@
 name = "waka"
 description = "Client for the WakaTime API"
 authors = ["Markus Mayer"]
-version = "0.2.0"
+version = "0.2.1"
 edition = "2024"
 rust-version = "1.87"
 readme = "README.md"
