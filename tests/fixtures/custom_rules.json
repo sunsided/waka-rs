@@ -1,0 +1,22 @@
+{
+  "data": [
+    {
+      "id": "rule-id-1",
+      "action": "change",
+      "source": "project",
+      "operation": "equals",
+      "source_value": "old-project-name",
+      "destinations": [
+        {
+          "id": "destination-id-1",
+          "destination": "project",
+          "destination_value": "new-project-name"
+        }
+      ],
+      "priority": 1,
+      "created_at": "2026-01-01T00:00:00Z",
+      "modified_at": null
+    }
+  ],
+  "job_id": "job-id-1"
+}

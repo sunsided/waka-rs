@@ -4,8 +4,9 @@ mod common;
 
 use assert2::check;
 use waka::{
-    AllTimesSinceTodayOptions, CommitOptions, CommitsOptions, DurationsOptions, InsightsOptions,
-    LeadersOptions, ProjectsOptions, StatsOptions, SummariesOptions,
+    AllTimesSinceTodayOptions, CommitOptions, CommitsOptions, DurationsOptions, EditorsOptions,
+    ExternalDurationsOptions, InsightsOptions, LeadersOptions, PrivateLeaderboardLeadersOptions,
+    ProjectsOptions, StatsOptions, SummariesOptions,
 };
 use wiremock::matchers::{header, method, path, query_param};
 use wiremock::{Mock, MockServer, ResponseTemplate};
@@ -442,4 +443,227 @@ async fn status_bar_today_returns_data() {
     let languages = result.data.languages.as_ref().expect("languages");
     check!(languages[0].name == "Rust");
     check!(result.has_team_features == Some(false));
+}
+
+#[tokio::test]
+async fn custom_rules_returns_data() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path("/users/current/custom_rules"))
+        .respond_with(json_response(include_str!("fixtures/custom_rules.json")))
+        .expect(1)
+        .mount(&server)
+        .await;
+
+    let client = common::client_for(&server);
+    let result = client.custom_rules().await.expect("request failed");
+
+    check!(result.data.len() == 1);
+    check!(result.data[0].action.as_deref() == Some("change"));
+    let destinations = result.data[0].destinations.as_ref().expect("destinations");
+    check!(destinations[0].destination_value.as_deref() == Some("new-project-name"));
+    check!(result.job_id.as_deref() == Some("job-id-1"));
+}
+
+#[tokio::test]
+async fn custom_rules_progress_returns_data() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path("/users/current/custom_rules_progress"))
+        .and(query_param("job_id", "job-id-1"))
+        .respond_with(json_response(include_str!(
+            "fixtures/custom_rules_progress.json"
+        )))
+        .expect(1)
+        .mount(&server)
+        .await;
+
+    let client = common::client_for(&server);
+    let result = client
+        .custom_rules_progress("job-id-1")
+        .await
+        .expect("request failed");
+
+    check!(result.progress == Some(80));
+    check!(result.job_id.as_deref() == Some("job-id-1"));
+}
+
+#[tokio::test]
+async fn data_dumps_returns_data() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path("/users/current/data_dumps"))
+        .respond_with(json_response(include_str!("fixtures/data_dumps.json")))
+        .expect(1)
+        .mount(&server)
+        .await;
+
+    let client = common::client_for(&server);
+    let result = client.data_dumps().await.expect("request failed");
+
+    check!(result.data.len() == 1);
+    check!(result.data[0].r#type.as_deref() == Some("heartbeats"));
+    check!(result.data[0].percent_complete == Some(100.0));
+    check!(result.data[0].has_failed == Some(false));
+}
+
+#[tokio::test]
+async fn editors_returns_data() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path("/editors"))
+        .and(query_param("unreleased", "true"))
+        .respond_with(json_response(include_str!("fixtures/editors.json")))
+        .expect(1)
+        .mount(&server)
+        .await;
+
+    let client = common::client_for(&server);
+    let result = client
+        .editors(EditorsOptions {
+            unreleased: Some(true),
+        })
+        .await
+        .expect("request failed");
+
+    check!(result.data.len() == 2);
+    check!(result.data[0].id == "adobe-xd");
+    check!(result.data[0].released == Some(true));
+}
+
+#[tokio::test]
+async fn external_durations_returns_data() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path("/users/current/external_durations"))
+        .and(query_param("date", "2026-06-04"))
+        .respond_with(json_response(include_str!(
+            "fixtures/external_durations.json"
+        )))
+        .expect(1)
+        .mount(&server)
+        .await;
+
+    let client = common::client_for(&server);
+    let result = client
+        .external_durations("2026-06-04", ExternalDurationsOptions::default())
+        .await
+        .expect("request failed");
+
+    check!(result.data.len() == 1);
+    check!(result.data[0].provider.as_deref() == Some("google_calendar"));
+    check!(result.data[0].category.as_deref() == Some("meeting"));
+}
+
+#[tokio::test]
+async fn meta_returns_data() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path("/meta"))
+        .respond_with(json_response(include_str!("fixtures/meta.json")))
+        .expect(1)
+        .mount(&server)
+        .await;
+
+    let client = common::client_for(&server);
+    let result = client.meta().await.expect("request failed");
+
+    let ips = result.ips.expect("ips");
+    let api = ips.api.expect("api ips");
+    check!(api.v4.map(|v| v.len()) == Some(2));
+    check!(result.last_modified_at.is_some());
+}
+
+#[tokio::test]
+async fn private_leaderboards_returns_data() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path("/users/current/leaderboards"))
+        .respond_with(json_response(include_str!(
+            "fixtures/private_leaderboards.json"
+        )))
+        .expect(1)
+        .mount(&server)
+        .await;
+
+    let client = common::client_for(&server);
+    let result = client.private_leaderboards().await.expect("request failed");
+
+    check!(result.data.len() == 1);
+    check!(result.data[0].name.as_deref() == Some("Team Leaderboard"));
+    check!(result.data[0].members_count == Some(5));
+    check!(result.pagination.total == Some(1));
+}
+
+#[tokio::test]
+async fn private_leaderboard_leaders_returns_data() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path("/users/current/leaderboards/board-id-1"))
+        .and(query_param("page", "1"))
+        .respond_with(json_response(include_str!("fixtures/leaders.json")))
+        .expect(1)
+        .mount(&server)
+        .await;
+
+    let client = common::client_for(&server);
+    let result = client
+        .private_leaderboard_leaders(
+            "board-id-1",
+            PrivateLeaderboardLeadersOptions {
+                page: Some(1),
+                ..Default::default()
+            },
+        )
+        .await
+        .expect("request failed");
+
+    check!(result.data.len() == 1);
+    check!(result.data[0].rank == 1);
+}
+
+#[tokio::test]
+async fn program_languages_returns_data() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path("/program_languages"))
+        .respond_with(json_response(include_str!(
+            "fixtures/program_languages.json"
+        )))
+        .expect(1)
+        .mount(&server)
+        .await;
+
+    let client = common::client_for(&server);
+    let result = client.program_languages().await.expect("request failed");
+
+    check!(result.data.len() == 2);
+    check!(result.data[0].is_verified == Some(true));
+    check!(result.data[0].extensions.as_ref().map(|e| e.len()) == Some(2));
+}
+
+#[tokio::test]
+async fn stats_aggregated_returns_data() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path("/stats/last_7_days"))
+        .respond_with(json_response(include_str!(
+            "fixtures/stats_aggregated.json"
+        )))
+        .expect(1)
+        .mount(&server)
+        .await;
+
+    let client = common::client_for(&server);
+    let result = client
+        .stats_aggregated("last_7_days")
+        .await
+        .expect("request failed");
+
+    let total = result.total.expect("total");
+    check!(total.average.expect("average").seconds.is_some());
+    check!(total.count.expect("count").text.is_some());
+    let languages = result.languages.expect("languages");
+    check!(languages.len() == 2);
+    check!(languages[0].measures.median.is_some());
 }

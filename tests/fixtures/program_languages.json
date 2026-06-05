@@ -1,0 +1,31 @@
+{
+  "data": [
+    {
+      "aliases": [],
+      "color": "#814CCC",
+      "created_at": "2021-02-11T14:13:42Z",
+      "extensions": [
+        ".bsl",
+        ".os"
+      ],
+      "id": "3180b7d4-3064-46f8-9eba-92ea218b5c58",
+      "is_verified": true,
+      "modified_at": "2025-01-21T11:52:51Z",
+      "name": "1C Enterprise"
+    },
+    {
+      "aliases": [],
+      "color": "#38761D",
+      "created_at": "2023-04-29T08:41:26Z",
+      "extensions": [
+        ".2da"
+      ],
+      "id": "724789ee-1d3e-4a3b-8134-02e2a1630606",
+      "is_verified": true,
+      "modified_at": "2025-01-21T11:52:51Z",
+      "name": "2-Dimensional Array"
+    }
+  ],
+  "total": 866,
+  "total_pages": 1
+}

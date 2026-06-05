@@ -1,0 +1,245 @@
+{
+  "data": {
+    "categories": [
+      {
+        "average": {
+          "seconds": 33906.37715304178,
+          "text": "9 hrs 25 mins"
+        },
+        "count": {
+          "text": "around 50,000 people"
+        },
+        "is_verified": true,
+        "max": {
+          "seconds": 508373.629464,
+          "text": "141 hrs 12 mins"
+        },
+        "median": {
+          "seconds": 17910.538,
+          "text": "4 hrs 58 mins"
+        },
+        "name": "AI Coding",
+        "sum": {
+          "seconds": 1772421959.298106,
+          "text": "492,339 hrs 25 mins"
+        }
+      },
+      {
+        "average": {
+          "seconds": 18114.685061507356,
+          "text": "5 hrs 1 min"
+        },
+        "count": {
+          "text": "around 70,000 people"
+        },
+        "is_verified": true,
+        "max": {
+          "seconds": 524257.123,
+          "text": "145 hrs 37 mins"
+        },
+        "median": {
+          "seconds": 8176.246,
+          "text": "2 hrs 16 mins"
+        },
+        "name": "Coding",
+        "sum": {
+          "seconds": 1352116322.361032,
+          "text": "375,587 hrs 52 mins"
+        }
+      }
+    ],
+    "daily_average": {
+      "average": {
+        "seconds": 6565.168712216127,
+        "text": "1 hr 49 mins"
+      },
+      "count": {
+        "text": "around 80,000 people"
+      },
+      "max": {
+        "seconds": 83471.0,
+        "text": "23 hrs 11 mins"
+      },
+      "median": {
+        "seconds": 4223.0,
+        "text": "1 hr 10 mins"
+      }
+    },
+    "editors": [
+      {
+        "average": {
+          "seconds": 37012.78020976732,
+          "text": "10 hrs 16 mins"
+        },
+        "count": {
+          "text": "around 50,000 people"
+        },
+        "is_verified": true,
+        "max": {
+          "seconds": 497165.258451,
+          "text": "138 hrs 6 mins"
+        },
+        "median": {
+          "seconds": 23969.092566,
+          "text": "6 hrs 39 mins"
+        },
+        "name": "VS Code",
+        "sum": {
+          "seconds": 1846974745.247599,
+          "text": "513,048 hrs 32 mins"
+        }
+      },
+      {
+        "average": {
+          "seconds": 33797.80509343108,
+          "text": "9 hrs 23 mins"
+        },
+        "count": {
+          "text": "around 10,000 people"
+        },
+        "is_verified": true,
+        "max": {
+          "seconds": 250795.562,
+          "text": "69 hrs 39 mins"
+        },
+        "median": {
+          "seconds": 20913.6325,
+          "text": "5 hrs 48 mins"
+        },
+        "name": "IntelliJ",
+        "sum": {
+          "seconds": 244222939.605133,
+          "text": "67,839 hrs 42 mins"
+        }
+      }
+    ],
+    "languages": [
+      {
+        "average": {
+          "seconds": 21406.096822593674,
+          "text": "5 hrs 56 mins"
+        },
+        "count": {
+          "text": "around 30,000 people"
+        },
+        "is_verified": true,
+        "max": {
+          "seconds": 418178.001876,
+          "text": "116 hrs 9 mins"
+        },
+        "median": {
+          "seconds": 8494.697902,
+          "text": "2 hrs 21 mins"
+        },
+        "name": "TypeScript",
+        "sum": {
+          "seconds": 550843089.535803,
+          "text": "153,011 hrs 58 mins"
+        }
+      },
+      {
+        "average": {
+          "seconds": 12229.995185502317,
+          "text": "3 hrs 23 mins"
+        },
+        "count": {
+          "text": "around 40,000 people"
+        },
+        "is_verified": true,
+        "max": {
+          "seconds": 263355.351,
+          "text": "73 hrs 9 mins"
+        },
+        "median": {
+          "seconds": 2977.244951,
+          "text": "49 mins"
+        },
+        "name": "JavaScript",
+        "sum": {
+          "seconds": 480443130.867273,
+          "text": "133,456 hrs 25 mins"
+        }
+      }
+    ],
+    "operating_systems": [
+      {
+        "average": {
+          "seconds": 37519.73429882489,
+          "text": "10 hrs 25 mins"
+        },
+        "count": {
+          "text": "around 30,000 people"
+        },
+        "is_verified": true,
+        "max": {
+          "seconds": 371583.364483,
+          "text": "103 hrs 13 mins"
+        },
+        "median": {
+          "seconds": 22589.688589,
+          "text": "6 hrs 16 mins"
+        },
+        "name": "Windows",
+        "sum": {
+          "seconds": 1241490488.213817,
+          "text": "344,858 hrs 28 mins"
+        }
+      },
+      {
+        "average": {
+          "seconds": 42970.498118791686,
+          "text": "11 hrs 56 mins"
+        },
+        "count": {
+          "text": "around 30,000 people"
+        },
+        "is_verified": true,
+        "max": {
+          "seconds": 565320.157939,
+          "text": "157 hrs 2 mins"
+        },
+        "median": {
+          "seconds": 31773.550289,
+          "text": "8 hrs 49 mins"
+        },
+        "name": "Mac",
+        "sum": {
+          "seconds": 1190411709.384886,
+          "text": "330,669 hrs 55 mins"
+        }
+      }
+    ],
+    "total": {
+      "average": {
+        "seconds": 45956.17493327318,
+        "text": "12 hrs 45 mins"
+      },
+      "count": {
+        "text": "around 80,000 people"
+      },
+      "max": {
+        "seconds": 584297.013,
+        "text": "162 hrs 18 mins"
+      },
+      "median": {
+        "seconds": 29557.792,
+        "text": "8 hrs 12 mins"
+      },
+      "sum": {
+        "seconds": 3778103097.439321,
+        "text": "1,049,473 hrs 4 mins"
+      }
+    }
+  },
+  "job_title": null,
+  "range": {
+    "end_date": "2026-06-04",
+    "end_text": "Thu Jun 4th 2026",
+    "name": "last_7_days",
+    "start_date": "2026-05-29",
+    "start_text": "Fri May 29th 2026",
+    "text": "from Fri May 29th 2026 until Thu Jun 4th 2026"
+  },
+  "timeout": 15,
+  "writes_only": false
+}

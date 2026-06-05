@@ -1,0 +1,21 @@
+{
+  "data": [
+    {
+      "id": "ext-duration-id-1",
+      "external_id": "meeting-123",
+      "entity": "Sprint Planning",
+      "type": "event",
+      "provider": "google_calendar",
+      "category": "meeting",
+      "start_time": 1717571200.0,
+      "end_time": 1717574800.0,
+      "project": null,
+      "branch": null,
+      "language": null,
+      "meta": null
+    }
+  ],
+  "start": "2026-06-04T00:00:00Z",
+  "end": "2026-06-04T23:59:59Z",
+  "timezone": "Europe/Berlin"
+}

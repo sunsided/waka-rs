@@ -1,0 +1,30 @@
+{
+  "data": [
+    {
+      "color": "#fd27bc",
+      "hidden": true,
+      "history_url": "https://github.com/wakatime/adobe-xd-wakatime/commits",
+      "id": "adobe-xd",
+      "name": "Adobe XD",
+      "released": true,
+      "repository": "https://github.com/wakatime/adobe-xd-wakatime",
+      "version": "1.0.0",
+      "version_url": "https://raw.githubusercontent.com/wakatime/adobe-xd-wakatime/master/manifest.json",
+      "website": "https://www.adobe.com/xd"
+    },
+    {
+      "color": "#99cd00",
+      "hidden": false,
+      "history_url": "https://github.com/wakatime/jetbrains-wakatime/blob/master/META-INF/plugin.xml#L30",
+      "id": "android-studio",
+      "name": "Android Studio",
+      "released": true,
+      "repository": "https://github.com/wakatime/jetbrains-wakatime",
+      "version": "16.1.2",
+      "version_url": "https://raw.githubusercontent.com/wakatime/jetbrains-wakatime/master/META-INF/plugin.xml",
+      "website": "https://developer.android.com/studio"
+    }
+  ],
+  "total": 108,
+  "total_pages": 1
+}

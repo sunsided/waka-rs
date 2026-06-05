@@ -1,0 +1,16 @@
+{
+  "data": [
+    {
+      "id": "dump-id-1",
+      "type": "heartbeats",
+      "status": "Completed",
+      "percent_complete": 100.0,
+      "download_url": "https://example.com/dump.json",
+      "is_processing": false,
+      "is_stuck": false,
+      "has_failed": false,
+      "expires": "2026-07-05T00:00:00Z",
+      "created_at": "2026-06-05T00:00:00Z"
+    }
+  ]
+}

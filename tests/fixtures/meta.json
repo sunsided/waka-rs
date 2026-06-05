@@ -1,0 +1,41 @@
+{
+  "data": {
+    "ip_descriptions": {
+      "api": "Public IPs used by api.wakatime.com api servers. These IPs are used for receiving coding activity from developer plugins, and should be whitelisted for outgoing HTTPS (port 443) connections. These IPs do not make requests to external servers, and therefore do not need to be whitelisted in any incoming firewall rules.",
+      "website": "Public IPs used by wakatime.com website servers. These IPs will only make requests to external servers from user generated actions, such as when setting up a self-hosted GitLab integration, and therefore should be whitelisted in your firewall rules for incoming connections anytime you configure your GitLab integration. These IPs also receive webhooks from your self-hosted GitLab servers if the GitLab integration is enabled, and should be whitelisted for outgoing HTTPS (port 443) connections on an ongoing basis.",
+      "worker": "Public IPs used by background processing tasks. These IPs make external requests, such as when syncing commits for a self-hosted GitLab integration, and should be whitelisted in your firewall rules for incoming connections on an ongoing basis. These IPs never receive webhook requests, and therefore do not need to be whitelisted for outgoing connections."
+    },
+    "ips": {
+      "api": {
+        "v4": [
+          "147.182.229.252",
+          "137.184.80.72"
+        ],
+        "v6": [
+          "2604:a880:4:1d0::df:b000",
+          "2604:a880:4:1d0::2a7:b000"
+        ]
+      },
+      "website": {
+        "v4": [
+          "137.184.120.226",
+          "143.198.244.187"
+        ],
+        "v6": [
+          "2604:a880:4:1d0::fd:3000"
+        ]
+      },
+      "worker": {
+        "v4": [
+          "143.198.156.189",
+          "64.23.185.111"
+        ],
+        "v6": [
+          "2604:a880:4:1d0::593:4000",
+          "2604:a880:4:1d0::3ca:8000"
+        ]
+      }
+    },
+    "last_modified_at": "2026-05-29T12:55:22Z"
+  }
+}
