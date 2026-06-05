@@ -10,6 +10,11 @@ A client for the [WakaTime](https://wakatime.com/) API, covering every documente
 endpoint — coding statistics, summaries, durations, heartbeats, goals, insights,
 leaderboards, organizations, and the write operations.
 
+This repository is a workspace containing two crates:
+
+- [`waka`](waka/) — the API client library (this document)
+- [`waka-cli`](waka-cli/) — a command-line client built on top of it
+
 ## Supported endpoints
 
 - [All Time Since Today](https://wakatime.com/developers#all_time_since_today) — `all_time_since_today`

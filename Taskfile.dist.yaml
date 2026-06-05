@@ -7,12 +7,12 @@ tasks:
     silent: true
 
   build:
-    desc: Build the library and all targets
+    desc: Build the workspace and all targets
     preconditions:
       - sh: command -v cargo
         msg: "cargo not found — install Rust from https://rustup.rs/"
     cmds:
-      - cargo build --all-targets
+      - cargo build --workspace --all-targets
 
   test:
     desc: Run the test suite (pass extra args after --)
@@ -20,12 +20,12 @@ tasks:
       - sh: command -v cargo
         msg: "cargo not found — install Rust from https://rustup.rs/"
     cmds:
-      - cargo test {{.CLI_ARGS}}
+      - cargo test --workspace {{.CLI_ARGS}}
 
   test:docs:
     desc: Run doctests only
     cmds:
-      - cargo test --doc
+      - cargo test --workspace --doc
 
   fmt:
     desc: Format the code
@@ -41,7 +41,7 @@ tasks:
   lint:
     desc: Run clippy, denying warnings (matches CI)
     cmds:
-      - cargo clippy --all-targets --all-features -- -D warnings
+      - cargo clippy --workspace --all-targets --all-features -- -D warnings
 
   lint:fix:
     desc: Run clippy with auto-fix
@@ -63,12 +63,12 @@ tasks:
   docs:
     desc: Build documentation
     cmds:
-      - cargo doc --no-deps
+      - cargo doc --workspace --no-deps
 
   docs:open:
     desc: Build and open documentation in the browser
     cmds:
-      - cargo doc --no-deps --open
+      - cargo doc --workspace --no-deps --open
 
   example:
     desc: Run the live API example (requires WAKATIME_API_KEY in env or .env)
@@ -76,7 +76,7 @@ tasks:
       - sh: test -n "$WAKATIME_API_KEY" || test -f .env
         msg: "WAKATIME_API_KEY not set and no .env file found — get your key from https://wakatime.com/api-key"
     cmds:
-      - cargo run --example example
+      - cargo run -p waka --example example
 
   clean:
     desc: Remove build output

@@ -211,10 +211,7 @@ impl WakaTimeClient {
         end: &str,
         options: SummariesOptions<'a>,
     ) -> Result<model::Summaries, ApiError> {
-        let qs = options
-            .query_string()
-            .with("start", start)
-            .with("end", end);
+        let qs = options.query_string().with("start", start).with("end", end);
         let url = format!(
             "{base_url}users/{user}/summaries{qs}",
             base_url = self.base_url,
@@ -770,10 +767,7 @@ impl WakaTimeClient {
         end: &str,
         options: OrgMemberSummariesOptions<'a>,
     ) -> Result<model::OrgMemberSummaries, ApiError> {
-        let qs = options
-            .query_string()
-            .with("start", start)
-            .with("end", end);
+        let qs = options.query_string().with("start", start).with("end", end);
         let url = format!(
             "{base_url}users/{user}/orgs/{org}/dashboards/{dashboard}/members/{member}/summaries{qs}",
             base_url = self.base_url,

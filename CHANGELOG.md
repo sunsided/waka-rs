@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- The repository is now a Cargo workspace; the library lives in `waka/`
+  and shared metadata and dependency versions are declared at the root.
+
 - Upgraded `query-string-builder` to 0.7 and adopted its zero-allocation
   borrowing builder; query strings now render without per-pair string
   allocations. No public API changes.
