@@ -1,0 +1,24 @@
+{
+  "data": [
+    {
+      "id": "machine-id-1",
+      "name": "work-laptop",
+      "value": "work-laptop.local",
+      "ip": "192.168.1.10",
+      "last_seen_at": "2026-06-04T08:00:00Z",
+      "timezone": "Europe/Berlin",
+      "created_at": "2023-07-01T12:00:00Z"
+    },
+    {
+      "id": "machine-id-2",
+      "name": null,
+      "value": "home-desktop",
+      "ip": "192.168.1.20",
+      "last_seen_at": "2026-06-01T20:00:00Z",
+      "timezone": "Europe/Berlin",
+      "created_at": "2024-01-15T09:00:00Z"
+    }
+  ],
+  "total": 2,
+  "total_pages": 1
+}

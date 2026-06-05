@@ -4,8 +4,8 @@ mod common;
 
 use assert2::check;
 use waka::{
-    AllTimesSinceTodayOptions, CommitOptions, CommitsOptions, DurationsOptions, ProjectsOptions,
-    StatsOptions, SummariesOptions,
+    AllTimesSinceTodayOptions, CommitOptions, CommitsOptions, DurationsOptions, InsightsOptions,
+    LeadersOptions, ProjectsOptions, StatsOptions, SummariesOptions,
 };
 use wiremock::matchers::{header, method, path, query_param};
 use wiremock::{Mock, MockServer, ResponseTemplate};
@@ -275,4 +275,171 @@ async fn custom_user_is_used_in_path() {
         .expect("request failed");
 
     check!(result.data.len() == 2);
+}
+
+#[tokio::test]
+async fn goals_returns_data() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path("/users/current/goals"))
+        .respond_with(json_response(include_str!("fixtures/goals.json")))
+        .expect(1)
+        .mount(&server)
+        .await;
+
+    let client = common::client_for(&server);
+    let result = client.goals().await.expect("request failed");
+
+    check!(result.data.len() == 1);
+    check!(result.data[0].id == "goal-id-1");
+    check!(result.data[0].delta.as_deref() == Some("day"));
+    check!(result.data[0].seconds == Some(7200));
+    let chart_data = result.data[0].chart_data.as_ref().expect("chart_data");
+    check!(chart_data.len() == 1);
+    check!(chart_data[0].range_status.as_deref() == Some("success"));
+    check!(result.pagination.total == Some(1));
+}
+
+#[tokio::test]
+async fn goal_returns_cached_data() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path("/users/current/goals/goal-id-1"))
+        .respond_with(json_response(include_str!("fixtures/goal.json")))
+        .expect(1)
+        .mount(&server)
+        .await;
+
+    let client = common::client_for(&server);
+    let result = client.goal("goal-id-1").await.expect("request failed");
+
+    check!(result.cached_at.as_deref() == Some("2026-06-05T08:00:00Z"));
+    check!(result.data.id == "goal-id-1");
+    check!(result.data.status.as_deref() == Some("success"));
+}
+
+#[tokio::test]
+async fn insights_returns_data_with_payload() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path("/users/current/insights/weekdays/last_7_days"))
+        .and(query_param("writes_only", "false"))
+        .respond_with(json_response(include_str!("fixtures/insights.json")))
+        .expect(1)
+        .mount(&server)
+        .await;
+
+    let client = common::client_for(&server);
+    let result = client
+        .insights(
+            "weekdays",
+            "last_7_days",
+            InsightsOptions {
+                writes_only: Some(false),
+                ..Default::default()
+            },
+        )
+        .await
+        .expect("request failed");
+
+    check!(result.range.as_deref() == Some("last_7_days"));
+    check!(result.status.as_deref() == Some("ok"));
+    check!(result.is_up_to_date == Some(true));
+    let weekdays = result.payload.get("weekdays").expect("weekdays payload");
+    check!(weekdays.as_array().map(|a| a.len()) == Some(2));
+}
+
+#[tokio::test]
+async fn leaders_returns_data_and_sends_filters() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path("/leaders"))
+        .and(query_param("language", "Rust"))
+        .and(query_param("page", "1"))
+        .respond_with(json_response(include_str!("fixtures/leaders.json")))
+        .expect(1)
+        .mount(&server)
+        .await;
+
+    let client = common::client_for(&server);
+    let result = client
+        .leaders(LeadersOptions {
+            language: Some("Rust"),
+            page: Some(1),
+            ..Default::default()
+        })
+        .await
+        .expect("request failed");
+
+    check!(result.data.len() == 1);
+    check!(result.data[0].rank == 1);
+    check!(result.data[0].user.username.as_deref() == Some("topcoder"));
+    let running_total = result.data[0]
+        .running_total
+        .as_ref()
+        .expect("running_total");
+    check!(running_total.total_seconds == 360000.0);
+    let current_user = result.current_user.as_ref().expect("current_user");
+    check!(current_user.rank == Some(42));
+    check!(result.pagination.page == Some(1));
+    check!(result.pagination.total_pages == Some(100));
+}
+
+#[tokio::test]
+async fn machine_names_returns_data() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path("/users/current/machine_names"))
+        .respond_with(json_response(include_str!("fixtures/machine_names.json")))
+        .expect(1)
+        .mount(&server)
+        .await;
+
+    let client = common::client_for(&server);
+    let result = client.machine_names().await.expect("request failed");
+
+    check!(result.data.len() == 2);
+    check!(result.data[0].name.as_deref() == Some("work-laptop"));
+    check!(result.data[1].name == None);
+    check!(result.pagination.total == Some(2));
+}
+
+#[tokio::test]
+async fn user_agents_returns_data() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path("/users/current/user_agents"))
+        .respond_with(json_response(include_str!("fixtures/user_agents.json")))
+        .expect(1)
+        .mount(&server)
+        .await;
+
+    let client = common::client_for(&server);
+    let result = client.user_agents().await.expect("request failed");
+
+    check!(result.data.len() == 1);
+    check!(result.data[0].editor.as_deref() == Some("vscode"));
+    check!(result.data[0].os.as_deref() == Some("linux"));
+    check!(result.data[0].is_browser_extension == Some(false));
+}
+
+#[tokio::test]
+async fn status_bar_today_returns_data() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path("/users/current/status_bar/today"))
+        .respond_with(json_response(include_str!("fixtures/status_bar.json")))
+        .expect(1)
+        .mount(&server)
+        .await;
+
+    let client = common::client_for(&server);
+    let result = client.status_bar_today().await.expect("request failed");
+
+    check!(result.cached_at.as_deref() == Some("2026-06-05T08:00:00Z"));
+    check!(result.data.grand_total.total_seconds == 4500.0);
+    check!(result.data.range.text == "Today");
+    let languages = result.data.languages.as_ref().expect("languages");
+    check!(languages[0].name == "Rust");
+    check!(result.has_team_features == Some(false));
 }

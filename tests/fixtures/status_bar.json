@@ -1,0 +1,57 @@
+{
+  "cached_at": "2026-06-05T08:00:00Z",
+  "data": {
+    "grand_total": {
+      "digital": "1:15",
+      "hours": 1,
+      "minutes": 15,
+      "text": "1 hr 15 mins",
+      "total_seconds": 4500.0
+    },
+    "categories": [
+      {
+        "name": "Coding",
+        "total_seconds": 4500.0,
+        "percent": 100.0,
+        "digital": "1:15",
+        "text": "1 hr 15 mins",
+        "hours": 1,
+        "minutes": 15
+      }
+    ],
+    "projects": [
+      {
+        "name": "waka-rs",
+        "total_seconds": 4500.0,
+        "percent": 100.0,
+        "digital": "1:15",
+        "text": "1 hr 15 mins",
+        "hours": 1,
+        "minutes": 15
+      }
+    ],
+    "languages": [
+      {
+        "name": "Rust",
+        "total_seconds": 4500.0,
+        "percent": 100.0,
+        "digital": "1:15:00",
+        "text": "1 hr 15 mins",
+        "hours": 1,
+        "minutes": 15,
+        "seconds": 0
+      }
+    ],
+    "editors": [],
+    "operating_systems": [],
+    "machines": [],
+    "range": {
+      "date": "2026-06-05",
+      "start": "2026-06-05T00:00:00Z",
+      "end": "2026-06-05T23:59:59Z",
+      "text": "Today",
+      "timezone": "Europe/Berlin"
+    }
+  },
+  "has_team_features": false
+}

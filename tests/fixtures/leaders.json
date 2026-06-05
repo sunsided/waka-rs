@@ -1,0 +1,76 @@
+{
+  "current_user": {
+    "rank": 42,
+    "page": 1,
+    "user": {
+      "id": "user-id-1",
+      "email": null,
+      "username": "testuser",
+      "full_name": "Test User",
+      "display_name": "Test User",
+      "website": null,
+      "human_readable_website": null,
+      "is_hireable": false,
+      "city": {
+        "country_code": "DE",
+        "name": "Berlin",
+        "state": "Berlin",
+        "title": "Berlin, Germany"
+      },
+      "is_email_public": false,
+      "is_photo_public": true
+    }
+  },
+  "data": [
+    {
+      "rank": 1,
+      "running_total": {
+        "total_seconds": 360000.0,
+        "human_readable_total": "100 hrs",
+        "daily_average": 51428.5,
+        "human_readable_daily_average": "14 hrs 17 mins",
+        "languages": [
+          {
+            "name": "Rust",
+            "total_seconds": 200000.0
+          },
+          {
+            "name": "TypeScript",
+            "total_seconds": 160000.0
+          }
+        ]
+      },
+      "user": {
+        "id": "user-id-2",
+        "username": "topcoder",
+        "full_name": "Top Coder",
+        "display_name": "Top Coder",
+        "website": "https://example.com",
+        "human_readable_website": "example.com",
+        "is_photo_public": true,
+        "city": {
+          "country_code": "US",
+          "name": "San Francisco",
+          "state": "California",
+          "title": "San Francisco, California, United States"
+        }
+      }
+    }
+  ],
+  "page": 1,
+  "total_pages": 100,
+  "range": {
+    "start_date": "2026-05-29T00:00:00Z",
+    "start_text": "Fri May 29th 2026",
+    "end_date": "2026-06-04T23:59:59Z",
+    "end_text": "Thu Jun 4th 2026",
+    "name": "last_7_days",
+    "text": "Last 7 Days"
+  },
+  "language": "Rust",
+  "is_hireable": null,
+  "country_code": null,
+  "modified_at": "2026-06-05T00:00:00Z",
+  "timeout": 15,
+  "writes_only": false
+}
