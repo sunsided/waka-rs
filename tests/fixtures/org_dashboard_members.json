@@ -1,0 +1,25 @@
+{
+  "data": [
+    {
+      "id": "user-id-1",
+      "email": "test@example.com",
+      "full_name": "Test User",
+      "is_view_only": false,
+      "photo": "https://example.com/photo.png",
+      "username": "testuser"
+    },
+    {
+      "id": "user-id-2",
+      "email": "other@example.com",
+      "full_name": "Other User",
+      "is_view_only": true,
+      "photo": null,
+      "username": null
+    }
+  ],
+  "next_page": null,
+  "page": 1,
+  "prev_page": null,
+  "total": 2,
+  "total_pages": 1
+}

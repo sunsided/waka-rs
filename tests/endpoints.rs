@@ -5,7 +5,8 @@ mod common;
 use assert2::check;
 use waka::{
     AllTimesSinceTodayOptions, CommitOptions, CommitsOptions, DurationsOptions, EditorsOptions,
-    ExternalDurationsOptions, InsightsOptions, LeadersOptions, PrivateLeaderboardLeadersOptions,
+    ExternalDurationsOptions, InsightsOptions, LeadersOptions, OrgDurationsOptions,
+    OrgMemberSummariesOptions, OrgSummariesOptions, PrivateLeaderboardLeadersOptions,
     ProjectsOptions, StatsOptions, SummariesOptions,
 };
 use wiremock::matchers::{header, method, path, query_param};
@@ -666,4 +667,231 @@ async fn stats_aggregated_returns_data() {
     let languages = result.languages.expect("languages");
     check!(languages.len() == 2);
     check!(languages[0].measures.median.is_some());
+}
+
+#[tokio::test]
+async fn orgs_returns_data() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path("/users/current/orgs"))
+        .respond_with(json_response(include_str!("fixtures/orgs.json")))
+        .expect(1)
+        .mount(&server)
+        .await;
+
+    let client = common::client_for(&server);
+    let result = client.orgs().await.expect("request failed");
+
+    check!(result.data.len() == 1);
+    check!(result.data[0].name.as_deref() == Some("Acme Corp"));
+    check!(result.data[0].people_count == Some(10));
+    check!(result.data[0].can_current_user_list_dashboards == Some(true));
+}
+
+#[tokio::test]
+async fn org_custom_rules_returns_data() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path("/users/current/orgs/org-id-1/custom_rules"))
+        .respond_with(json_response(include_str!(
+            "fixtures/org_custom_rules.json"
+        )))
+        .expect(1)
+        .mount(&server)
+        .await;
+
+    let client = common::client_for(&server);
+    let result = client
+        .org_custom_rules("org-id-1")
+        .await
+        .expect("request failed");
+
+    check!(result.data.len() == 1);
+    check!(result.data[0].operation.as_deref() == Some("starts with"));
+    let destinations = result.data[0].destinations.as_ref().expect("destinations");
+    check!(destinations[0].destination_value.as_deref() == Some("scratch"));
+}
+
+#[tokio::test]
+async fn org_dashboards_returns_data() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path("/users/current/orgs/org-id-1/dashboards"))
+        .respond_with(json_response(include_str!("fixtures/org_dashboards.json")))
+        .expect(1)
+        .mount(&server)
+        .await;
+
+    let client = common::client_for(&server);
+    let result = client
+        .org_dashboards("org-id-1")
+        .await
+        .expect("request failed");
+
+    check!(result.data.len() == 1);
+    check!(result.data[0].full_name.as_deref() == Some("Backend Team"));
+    check!(result.data[0].members_count == Some(5));
+    check!(result.next_page == None);
+    check!(result.pagination.page == Some(1));
+}
+
+#[tokio::test]
+async fn org_dashboard_members_returns_data() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path(
+            "/users/current/orgs/org-id-1/dashboards/dashboard-id-1/members",
+        ))
+        .respond_with(json_response(include_str!(
+            "fixtures/org_dashboard_members.json"
+        )))
+        .expect(1)
+        .mount(&server)
+        .await;
+
+    let client = common::client_for(&server);
+    let result = client
+        .org_dashboard_members("org-id-1", "dashboard-id-1")
+        .await
+        .expect("request failed");
+
+    check!(result.data.len() == 2);
+    check!(result.data[0].is_view_only == Some(false));
+    check!(result.data[1].is_view_only == Some(true));
+    check!(result.pagination.total == Some(2));
+}
+
+#[tokio::test]
+async fn org_dashboard_durations_returns_data() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path(
+            "/users/current/orgs/org-id-1/dashboards/dashboard-id-1/durations",
+        ))
+        .and(query_param("date", "2026-06-04"))
+        .and(query_param("slice_by", "language"))
+        .respond_with(json_response(include_str!(
+            "fixtures/org_dashboard_durations.json"
+        )))
+        .expect(1)
+        .mount(&server)
+        .await;
+
+    let client = common::client_for(&server);
+    let result = client
+        .org_dashboard_durations(
+            "org-id-1",
+            "dashboard-id-1",
+            "2026-06-04",
+            OrgDurationsOptions {
+                slice_by: Some("language"),
+                ..Default::default()
+            },
+        )
+        .await
+        .expect("request failed");
+
+    check!(result.data.len() == 1);
+    check!(result.data[0].member.id == "user-id-1");
+    check!(result.data[0].durations.len() == 1);
+    check!(result.data[0].durations[0].duration == 1800.0);
+}
+
+#[tokio::test]
+async fn org_dashboard_summaries_returns_data() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path(
+            "/users/current/orgs/org-id-1/dashboards/dashboard-id-1/summaries",
+        ))
+        .and(query_param("date", "2026-06-04"))
+        .respond_with(json_response(include_str!(
+            "fixtures/org_dashboard_summaries.json"
+        )))
+        .expect(1)
+        .mount(&server)
+        .await;
+
+    let client = common::client_for(&server);
+    let result = client
+        .org_dashboard_summaries(
+            "org-id-1",
+            "dashboard-id-1",
+            "2026-06-04",
+            OrgSummariesOptions::default(),
+        )
+        .await
+        .expect("request failed");
+
+    check!(result.data.len() == 1);
+    let member = result.data[0].member.as_ref().expect("member");
+    check!(member.username.as_deref() == Some("testuser"));
+    check!(result.data[0].grand_total.total_seconds == 9000.0);
+    let cumulative_total = result.cumulative_total.expect("cumulative_total");
+    check!(cumulative_total.seconds == 9000.0);
+}
+
+#[tokio::test]
+async fn org_dashboard_member_durations_returns_data() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path(
+            "/users/current/orgs/org-id-1/dashboards/dashboard-id-1/members/user-id-1/durations",
+        ))
+        .and(query_param("date", "2026-06-04"))
+        .respond_with(json_response(include_str!("fixtures/durations.json")))
+        .expect(1)
+        .mount(&server)
+        .await;
+
+    let client = common::client_for(&server);
+    let result = client
+        .org_dashboard_member_durations(
+            "org-id-1",
+            "dashboard-id-1",
+            "user-id-1",
+            "2026-06-04",
+            OrgDurationsOptions::default(),
+        )
+        .await
+        .expect("request failed");
+
+    check!(result.data.len() == 2);
+    check!(result.data[0].project.as_deref() == Some("waka-rs"));
+}
+
+#[tokio::test]
+async fn org_dashboard_member_summaries_returns_data() {
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path(
+            "/users/current/orgs/org-id-1/dashboards/dashboard-id-1/members/user-id-1/summaries",
+        ))
+        .and(query_param("start", "2026-06-04"))
+        .and(query_param("end", "2026-06-05"))
+        .respond_with(json_response(include_str!(
+            "fixtures/org_dashboard_member_summaries.json"
+        )))
+        .expect(1)
+        .mount(&server)
+        .await;
+
+    let client = common::client_for(&server);
+    let result = client
+        .org_dashboard_member_summaries(
+            "org-id-1",
+            "dashboard-id-1",
+            "user-id-1",
+            "2026-06-04",
+            "2026-06-05",
+            OrgMemberSummariesOptions::default(),
+        )
+        .await
+        .expect("request failed");
+
+    check!(result.data.len() == 1);
+    check!(result.data[0].member.is_none());
+    check!(result.default_personal_privacy.as_deref() == Some("visible"));
+    let daily_average = result.daily_average.expect("daily_average");
+    check!(daily_average.days_including_holidays == 1);
 }

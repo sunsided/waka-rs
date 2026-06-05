@@ -1,0 +1,22 @@
+{
+  "data": [
+    {
+      "id": "org-id-1",
+      "name": "Acme Corp",
+      "default_project_privacy": "visible",
+      "invited_people_count": 2,
+      "invited_people_count_human_readable": "2 people",
+      "is_duration_visible": true,
+      "people_count": 10,
+      "people_count_human_readable": "10 people",
+      "timeout": 15,
+      "timezone": "Europe/Berlin",
+      "writes_only": false,
+      "can_current_user_list_dashboards": true,
+      "created_at": "2025-01-01T00:00:00Z",
+      "modified_at": null
+    }
+  ],
+  "total": 1,
+  "total_pages": 1
+}

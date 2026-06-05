@@ -1,0 +1,24 @@
+{
+  "data": [
+    {
+      "member": {
+        "id": "user-id-1",
+        "email": "test@example.com",
+        "full_name": "Test User",
+        "photo": "https://example.com/photo.png",
+        "username": "testuser",
+        "default_personal_privacy": "visible"
+      },
+      "durations": [
+        {
+          "project": "waka-rs",
+          "time": 1717571200.0,
+          "duration": 1800.0
+        }
+      ],
+      "start": "2026-06-04T00:00:00Z",
+      "end": "2026-06-04T23:59:59Z",
+      "timezone": "Europe/Berlin"
+    }
+  ]
+}

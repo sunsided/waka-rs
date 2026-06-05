@@ -1,0 +1,40 @@
+{
+  "data": [
+    {
+      "grand_total": {
+        "digital": "2:30",
+        "hours": 2,
+        "minutes": 30,
+        "text": "2 hrs 30 mins",
+        "total_seconds": 9000.0
+      },
+      "projects": [],
+      "languages": [],
+      "editors": [],
+      "operating_systems": [],
+      "range": {
+        "date": "2026-06-04",
+        "start": "2026-06-04T00:00:00Z",
+        "end": "2026-06-04T23:59:59Z",
+        "text": "Yesterday",
+        "timezone": "Europe/Berlin"
+      }
+    }
+  ],
+  "start": "2026-06-04T00:00:00Z",
+  "end": "2026-06-04T23:59:59Z",
+  "default_personal_privacy": "visible",
+  "cumulative_total": {
+    "seconds": 9000.0,
+    "text": "2 hrs 30 mins"
+  },
+  "daily_average": {
+    "holidays": 0,
+    "days_including_holidays": 1,
+    "days_minus_holidays": 1,
+    "seconds": 9000.0,
+    "text": "2 hrs 30 mins",
+    "seconds_including_other_language": 9000.0,
+    "text_including_other_language": "2 hrs 30 mins"
+  }
+}

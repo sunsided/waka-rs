@@ -1,0 +1,29 @@
+{
+  "data": [
+    {
+      "id": "dashboard-id-1",
+      "full_name": "Backend Team",
+      "created_by": "user-id-1",
+      "timezone": "Europe/Berlin",
+      "has_changed_timezone": false,
+      "members_count": 5,
+      "members_count_human_readable": "5 people",
+      "is_current_user_member": true,
+      "is_viewing_restricted": false,
+      "is_manual_time_hidden": false,
+      "can_current_user_view": true,
+      "can_current_user_request_to_view": false,
+      "can_current_user_request_to_join": false,
+      "can_current_user_add_members": true,
+      "can_current_user_remove_members": true,
+      "can_current_user_delete": false,
+      "created_at": "2025-01-01T00:00:00Z",
+      "modified_at": null
+    }
+  ],
+  "next_page": null,
+  "page": 1,
+  "prev_page": null,
+  "total": 1,
+  "total_pages": 1
+}

@@ -1,0 +1,18 @@
+{
+  "data": [
+    {
+      "action": "change",
+      "source": "project",
+      "operation": "starts with",
+      "source_value": "tmp-",
+      "destinations": [
+        {
+          "id": "destination-id-1",
+          "destination": "project",
+          "destination_value": "scratch"
+        }
+      ],
+      "priority": 1
+    }
+  ]
+}
