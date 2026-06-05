@@ -1,0 +1,86 @@
+version: '3'
+
+tasks:
+  default:
+    cmds:
+      - task --list --sort=none
+    silent: true
+
+  build:
+    desc: Build the library and all targets
+    preconditions:
+      - sh: command -v cargo
+        msg: "cargo not found — install Rust from https://rustup.rs/"
+    cmds:
+      - cargo build --all-targets
+
+  test:
+    desc: Run the test suite (pass extra args after --)
+    preconditions:
+      - sh: command -v cargo
+        msg: "cargo not found — install Rust from https://rustup.rs/"
+    cmds:
+      - cargo test {{.CLI_ARGS}}
+
+  test:docs:
+    desc: Run doctests only
+    cmds:
+      - cargo test --doc
+
+  fmt:
+    desc: Format the code
+    aliases: [format]
+    cmds:
+      - cargo fmt --all
+
+  fmt:check:
+    desc: Check formatting without modifying files
+    cmds:
+      - cargo fmt --all -- --check
+
+  lint:
+    desc: Run clippy, denying warnings (matches CI)
+    cmds:
+      - cargo clippy --all-targets --all-features -- -D warnings
+
+  lint:fix:
+    desc: Run clippy with auto-fix
+    aliases: [fix]
+    cmds:
+      - cargo clippy --fix --allow-dirty --allow-staged --all-targets --all-features
+
+  check:
+    desc: All static checks (format + lint)
+    deps: [fmt:check, lint]
+
+  ci:
+    desc: Full CI sequence (static checks + tests + doctests)
+    cmds:
+      - task: check
+      - task: test
+      - task: test:docs
+
+  docs:
+    desc: Build documentation
+    cmds:
+      - cargo doc --no-deps
+
+  docs:open:
+    desc: Build and open documentation in the browser
+    cmds:
+      - cargo doc --no-deps --open
+
+  example:
+    desc: Run the live API example (requires WAKATIME_API_KEY in env or .env)
+    preconditions:
+      - sh: test -n "$WAKATIME_API_KEY" || test -f .env
+        msg: "WAKATIME_API_KEY not set and no .env file found — get your key from https://wakatime.com/api-key"
+    cmds:
+      - cargo run --example example
+
+  clean:
+    desc: Remove build output
+    status:
+      - test ! -d target
+    cmds:
+      - cargo clean
