@@ -42,6 +42,8 @@ pub struct WakaTimeClientBuilder {
     api_key_base64: String,
     /// The optional user to use.
     user: Option<String>,
+    /// The optional base URL to use instead of the default WakaTime API URL.
+    base_url: Option<String>,
 }
 
 impl WakaTimeClientBuilder {
@@ -59,6 +61,19 @@ impl WakaTimeClientBuilder {
         self
     }
 
+    /// Overrides the base URL of the WakaTime API, e.g. for testing against a mock server.
+    /// If unspecified, `https://wakatime.com/api/v1/` is used.
+    pub fn with_base_url<S: AsRef<str>>(mut self, base_url: S) -> Self {
+        let base_url = base_url.as_ref();
+        // Ensure a trailing slash so path concatenation stays correct.
+        self.base_url = Some(if base_url.ends_with('/') {
+            base_url.to_string()
+        } else {
+            format!("{base_url}/")
+        });
+        self
+    }
+
     pub fn build(self) -> Result<WakaTimeClient, BuilderError> {
         let mut headers = header::HeaderMap::new();
         let authorize = format!("Basic {api_key}", api_key = self.api_key_base64);
@@ -68,7 +83,8 @@ impl WakaTimeClientBuilder {
 
         Ok(WakaTimeClient {
             client,
-            user: self.user.unwrap_or(CURRENT_USER.to_string()),
+            user: self.user.unwrap_or_else(|| CURRENT_USER.to_string()),
+            base_url: self.base_url.unwrap_or_else(|| BASE_URL.to_string()),
         })
     }
 }
@@ -79,6 +95,8 @@ pub struct WakaTimeClient {
     client: Client,
     /// The user to use.
     user: String,
+    /// The base URL of the API.
+    base_url: String,
 }
 
 impl WakaTimeClient {
@@ -90,7 +108,8 @@ impl WakaTimeClient {
     ) -> Result<model::AllTimeSinceToday, ApiError> {
         let qs = options.into_query_string();
         let url = format!(
-            "{BASE_URL}users/{user}/all_time_since_today{qs}",
+            "{base_url}users/{user}/all_time_since_today{qs}",
+            base_url = self.base_url,
             user = self.user
         );
         let response = self.client.get(url).send().await?;
@@ -107,7 +126,8 @@ impl WakaTimeClient {
     ) -> Result<model::Commits, ApiError> {
         let qs = options.into_query_string();
         let url = format!(
-            "{BASE_URL}users/{user}/projects/{project}/commits/{hash}{qs}",
+            "{base_url}users/{user}/projects/{project}/commits/{hash}{qs}",
+            base_url = self.base_url,
             user = self.user
         );
         let response = self.client.get(url).send().await?;
@@ -126,7 +146,11 @@ impl WakaTimeClient {
             .into_query_string()
             .with_value("start", start)
             .with_value("end", end);
-        let url = format!("{BASE_URL}users/{user}/summaries{qs}", user = self.user);
+        let url = format!(
+            "{base_url}users/{user}/summaries{qs}",
+            base_url = self.base_url,
+            user = self.user
+        );
         let response = self.client.get(url).send().await?;
         Self::deserialize_as(response, |r| r).await
     }
