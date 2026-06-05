@@ -1,0 +1,77 @@
+{
+  "data": [
+    {
+      "grand_total": {
+        "digital": "2:30",
+        "hours": 2,
+        "minutes": 30,
+        "text": "2 hrs 30 mins",
+        "total_seconds": 9000.0
+      },
+      "categories": [
+        {
+          "name": "Coding",
+          "total_seconds": 9000.0,
+          "percent": 100.0,
+          "digital": "2:30",
+          "text": "2 hrs 30 mins",
+          "hours": 2,
+          "minutes": 30
+        }
+      ],
+      "projects": [
+        {
+          "name": "waka-rs",
+          "total_seconds": 9000.0,
+          "percent": 100.0,
+          "digital": "2:30",
+          "text": "2 hrs 30 mins",
+          "hours": 2,
+          "minutes": 30
+        }
+      ],
+      "languages": [
+        {
+          "name": "Rust",
+          "total_seconds": 9000.0,
+          "percent": 100.0,
+          "digital": "2:30:00",
+          "text": "2 hrs 30 mins",
+          "hours": 2,
+          "minutes": 30,
+          "seconds": 0
+        }
+      ],
+      "editors": [],
+      "operating_systems": [],
+      "dependencies": [],
+      "machines": [],
+      "branches": null,
+      "entities": null,
+      "range": {
+        "date": "2026-06-04",
+        "start": "2026-06-04T00:00:00Z",
+        "end": "2026-06-04T23:59:59Z",
+        "text": "Yesterday",
+        "timezone": "Europe/Berlin"
+      }
+    }
+  ],
+  "cumulative_total": {
+    "seconds": 9000.0,
+    "text": "2 hrs 30 mins",
+    "decimal": "2.50",
+    "digital": "2:30"
+  },
+  "daily_average": {
+    "holidays": 0,
+    "days_including_holidays": 1,
+    "days_minus_holidays": 1,
+    "seconds": 9000.0,
+    "text": "2 hrs 30 mins",
+    "seconds_including_other_language": 9000.0,
+    "text_including_other_language": "2 hrs 30 mins"
+  },
+  "start": "2026-06-04T00:00:00Z",
+  "end": "2026-06-04T23:59:59Z"
+}

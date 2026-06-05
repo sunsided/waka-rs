@@ -1,0 +1,64 @@
+{
+  "data": {
+    "total_seconds": 86400.5,
+    "daily_average": 12343.0,
+    "days_including_holidays": 7,
+    "days_minus_holidays": 5,
+    "holidays": 2,
+    "status": "ok",
+    "is_up_to_date": true,
+    "is_coding_activity_visible": true,
+    "range": "last_7_days",
+    "human_readable_range": "Last 7 Days",
+    "timezone": "Europe/Berlin",
+    "languages": [
+      {
+        "name": "Rust",
+        "total_seconds": 50000.0,
+        "percent": 57.87,
+        "digital": "13:53",
+        "text": "13 hrs 53 mins",
+        "hours": 13,
+        "minutes": 53,
+        "seconds": 20
+      }
+    ],
+    "editors": [
+      {
+        "name": "VS Code",
+        "total_seconds": 86400.5,
+        "percent": 100.0,
+        "digital": "24:00",
+        "text": "24 hrs",
+        "hours": 24,
+        "minutes": 0,
+        "seconds": 0
+      }
+    ],
+    "operating_systems": [],
+    "categories": [],
+    "projects": [
+      {
+        "name": "waka-rs",
+        "total_seconds": 36400.5,
+        "percent": 42.13,
+        "digital": "10:06",
+        "text": "10 hrs 6 mins",
+        "hours": 10,
+        "minutes": 6,
+        "seconds": 40
+      }
+    ],
+    "machines": [],
+    "dependencies": [],
+    "best_day": {
+      "date": "2026-06-01",
+      "text": "10 hrs 6 mins",
+      "total_seconds": 36400.5
+    },
+    "user_id": "user-id-1",
+    "username": "testuser",
+    "created_at": "2026-06-01T00:00:00Z",
+    "modified_at": "2026-06-04T00:00:00Z"
+  }
+}

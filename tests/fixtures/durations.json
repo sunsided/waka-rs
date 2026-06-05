@@ -1,0 +1,19 @@
+{
+  "data": [
+    {
+      "project": "waka-rs",
+      "time": 1717571200.0,
+      "duration": 1800.0,
+      "color": null
+    },
+    {
+      "project": "other-project",
+      "time": 1717573200.0,
+      "duration": 600.5,
+      "color": null
+    }
+  ],
+  "start": "2026-06-04T00:00:00Z",
+  "end": "2026-06-04T23:59:59Z",
+  "timezone": "Europe/Berlin"
+}

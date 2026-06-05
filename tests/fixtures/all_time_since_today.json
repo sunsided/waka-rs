@@ -1,0 +1,20 @@
+{
+  "data": {
+    "decimal": "1500.50",
+    "digital": "1500:30",
+    "is_up_to_date": true,
+    "percent_calculated": 100,
+    "range": {
+      "end": "2026-06-04T23:59:59Z",
+      "end_date": "2026-06-04",
+      "end_text": "Today",
+      "start": "2023-07-01T00:00:00Z",
+      "start_date": "2023-07-01",
+      "start_text": "Sat Jul 1st 2023",
+      "timezone": "Europe/Berlin"
+    },
+    "text": "1,500 hrs 30 mins",
+    "timeout": 15,
+    "total_seconds": 5401800.0
+  }
+}

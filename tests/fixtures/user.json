@@ -1,0 +1,28 @@
+{
+  "data": {
+    "id": "user-id-1",
+    "username": "testuser",
+    "display_name": "Test User",
+    "full_name": "Test User",
+    "email": "test@example.com",
+    "photo": null,
+    "is_email_public": false,
+    "is_email_confirmed": true,
+    "timezone": "Europe/Berlin",
+    "last_heartbeat_at": "2026-06-04T08:00:00Z",
+    "last_plugin": "wakatime/1.0",
+    "last_plugin_name": "VS Code",
+    "last_project": "waka-rs",
+    "plan": "free",
+    "website": null,
+    "human_readable_website": null,
+    "location": null,
+    "created_at": "2023-07-01T12:00:00Z",
+    "modified_at": "2026-06-01T00:00:00Z",
+    "photo_public": true,
+    "is_hireable": false,
+    "has_premium_features": false,
+    "languages_used_public": true,
+    "logged_time_public": false
+  }
+}
