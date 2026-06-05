@@ -7,10 +7,16 @@ A client to fetch your coding statistics from [WakaTime](https://wakatime.com/) 
 - [All Time Since Today](https://wakatime.com/developers#all_time_since_today) — `all_time_since_today`
 - [Commits](https://wakatime.com/developers#commits) — `commit` (single), `commits` (paginated list)
 - [Durations](https://wakatime.com/developers#durations) — `durations`
+- [Goals](https://wakatime.com/developers#goals) — `goals` (list), `goal` (single)
 - [Heartbeats](https://wakatime.com/developers#heartbeats) — `heartbeats`
+- [Insights](https://wakatime.com/developers#insights) — `insights`
+- [Leaders](https://wakatime.com/developers#leaders) — `leaders`
+- [Machine Names](https://wakatime.com/developers#machine_names) — `machine_names`
 - [Projects](https://wakatime.com/developers#projects) — `projects`
 - [Stats](https://wakatime.com/developers#stats) — `stats`
+- [Status Bar](https://wakatime.com/developers#status_bar) — `status_bar_today`
 - [Summaries](https://wakatime.com/developers#summaries) — `summaries`
+- [User Agents](https://wakatime.com/developers#user_agents) — `user_agents`
 - [Users](https://wakatime.com/developers#users) — `user`
 
 ## Usage
