@@ -80,6 +80,9 @@ async fn parses_singular_error_body_on_404() {
     let client = common::client_for(&server);
     let result = client.projects(ProjectsOptions::default()).await;
 
+    if let Err(e) = &result {
+        check!(e.to_string() == "Resource not found: Not found.");
+    }
     assert!(let Err(ApiError::NotFound(Some(errors))) = result);
     check!(errors.error.as_deref() == Some("Not found."));
     check!(errors.errors.is_empty());
