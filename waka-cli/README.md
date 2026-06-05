@@ -1,5 +1,9 @@
 # waka-cli
 
+[![Crates.io](https://img.shields.io/crates/v/waka-cli)](https://crates.io/crates/waka-cli)
+[![CI](https://github.com/sunsided/waka-rs/actions/workflows/rust.yml/badge.svg)](https://github.com/sunsided/waka-rs/actions/workflows/rust.yml)
+[![License: EUPL-1.2](https://img.shields.io/badge/license-EUPL--1.2-blue)](https://github.com/sunsided/waka-rs/blob/main/LICENSE.md)
+
 A command-line client for the [WakaTime](https://wakatime.com/) API, built on the
 [`waka`](https://crates.io/crates/waka) crate. It covers every documented endpoint:
 coding statistics, summaries, durations, heartbeats, goals, insights, leaderboards,
@@ -7,9 +11,19 @@ organizations, and the write operations.
 
 ## Installation
 
+With a Rust toolchain:
+
 ```sh
 cargo install waka-cli
 ```
+
+Or grab a prebuilt binary from the
+[GitHub releases](https://github.com/sunsided/waka-rs/releases): each release
+ships archives (with SHA-256 checksums) for
+
+- Linux: `x86_64-unknown-linux-gnu`, `x86_64-unknown-linux-musl` (static)
+- macOS: `aarch64-apple-darwin` (Apple Silicon), `x86_64-apple-darwin` (Intel)
+- Windows: `x86_64-pc-windows-msvc`
 
 ## Authentication
 
@@ -70,8 +84,47 @@ waka-cli custom-rules set --file rules.json
 waka-cli data-dumps create daily
 ```
 
+Output is a compact human-readable rendering, e.g.:
+
+```text
+$ waka-cli stats last_7_days
+Stats for Last 7 Days
+Total:         32h 07m 41s
+Daily average: 4h 35m 23s
+Days:          7 (6 active)
+Best day:      2026-06-02 (8 hrs 12 mins)
+
+Languages:
+Rust      24h 02m 11s  74.8%
+Markdown   3h 41m 09s  11.5%
+TOML       1h 12m 54s   3.8%
+```
+
 Run `waka-cli --help` for the full list of subcommands, and
 `waka-cli <command> --help` for the options of each command.
+
+### Subcommands
+
+| Command | Description |
+|---|---|
+| `user` | The user's profile |
+| `all-time` | Total time logged since account creation |
+| `stats`, `stats-aggregated` | Coding activity stats; aggregate stats of all users |
+| `summaries` | Daily summaries for a date range |
+| `durations` | A single day as an array of durations |
+| `insights` | Insights such as `best_day`, `weekdays`, `languages` |
+| `projects`, `commits`, `commit` | Projects and per-commit coding activity |
+| `goals`, `goal` | Coding goals |
+| `leaders`, `leaderboards`, `leaderboard` | Public and private leaderboards |
+| `machine-names`, `user-agents` | Machines and plugins seen |
+| `editors`, `program-languages`, `meta` | WakaTime service data |
+| `status-bar` | Today's activity for editor status bars |
+| `heartbeats list\|send\|send-bulk\|delete` | Inspect, send or delete heartbeats |
+| `external-durations list\|send\|send-bulk\|delete` | Log time from external apps |
+| `data-dumps list\|create` | Data dump exports |
+| `custom-rules list\|set\|delete\|progress\|clear-progress` | Custom rules |
+| `org list\|dashboards\|members\|durations\|summaries\|…` | Organization dashboards |
+| `completions` | Shell completion scripts |
 
 ## Shell completions
 
