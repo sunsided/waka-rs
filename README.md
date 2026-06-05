@@ -1,6 +1,7 @@
 # WakaTime client for Rust
 
 [![Crates.io](https://img.shields.io/crates/v/waka)](https://crates.io/crates/waka)
+[![Safety Dance](https://img.shields.io/badge/unsafe-forbidden-success.svg)](https://github.com/rust-secure-code/safety-dance/)
 [![docs.rs](https://img.shields.io/docsrs/waka)](https://docs.rs/waka)
 [![CI](https://github.com/sunsided/waka-rs/actions/workflows/rust.yml/badge.svg)](https://github.com/sunsided/waka-rs/actions/workflows/rust.yml)
 [![License: EUPL-1.2](https://img.shields.io/badge/license-EUPL--1.2-blue)](LICENSE.md)

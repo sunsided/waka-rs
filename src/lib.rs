@@ -23,6 +23,8 @@
 //! # }
 //! ```
 
+#![deny(unsafe_code)]
+
 mod api_error;
 mod builder_error;
 pub mod model;
