@@ -20,6 +20,8 @@ pub struct Commit {
     pub author_date: String,
     /// Email address of author.
     pub author_email: String,
+    /// Unique id of the author's WakaTime user, when matched.
+    pub author_id: Option<String>,
     /// Link to author's profile on GitHub, Bitbucket, GitLab, etc.
     pub author_html_url: String,
     /// Name of author.
@@ -50,12 +52,18 @@ pub struct Commit {
     pub hash: String,
     /// Link to an html page with details about current commit.
     pub html_url: String,
+    /// Commit time in human-readable format.
+    pub human_readable_date: Option<String>,
+    /// Commit time relative to the current time, e.g. `2 days ago`.
+    pub human_readable_natural_date: Option<String>,
     /// Time coded in editor for this commit.
     pub human_readable_total: String,
     /// Time coded in editor for this commit.
     pub human_readable_total_with_seconds: String,
     /// Unique id of commit.
     pub id: String,
+    /// Whether the author was matched to a WakaTime user.
+    pub is_author_found: Option<bool>,
     /// Author's description of this commit.
     pub message: String,
     /// `refs/heads/main`.
@@ -81,6 +89,10 @@ pub struct Project {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Repository {
+    /// Associated repository badge if enabled, otherwise `null`.
+    pub badge: Option<serde_json::Value>,
+    /// Time when this repository was created in ISO 8601 format.
+    pub created_at: Option<String>,
     /// Default branch if given for this repo.
     pub default_branch: String,
     /// remote repository description.
@@ -95,12 +107,16 @@ pub struct Repository {
     pub html_url: Option<String>,
     /// Unique id of repository.
     pub id: String,
+    /// URL of the repository provider's icon image.
+    pub image_icon_url: Option<String>,
     /// Whether this repo is a fork or original.
     pub is_fork: bool,
     /// Whether this repo is private or public.
     pub is_private: bool,
     /// Last time this repo was synced with remote provider ISO 8601 format.
     pub last_synced_at: Option<String>,
+    /// Time when this repository was last modified in ISO 8601 format.
+    pub modified_at: Option<String>,
     /// Repository name.
     pub name: String,
     /// Remote provider of repository, ex: `github`.
@@ -109,6 +125,10 @@ pub struct Repository {
     pub star_count: u64,
     /// API url of remote repository.
     pub url: String,
+    /// Repository name URL-encoded.
+    pub urlencoded_name: Option<String>,
+    /// Name of the WakaTime project connected to this repository.
+    pub wakatime_project_name: Option<String>,
     /// Number of watchers of repo if available.
     pub watch_count: u64,
 }

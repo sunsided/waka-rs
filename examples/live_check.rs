@@ -161,12 +161,26 @@ async fn run(client: &WakaTimeClient, failures: &mut Vec<String>) {
     report("orgs", client.orgs().await, failures).await;
 
     if let Some(project) = first_project {
-        report(
-            "commits",
-            client.commits(&project, CommitsOptions::default()).await,
-            failures,
-        )
-        .await;
+        let commits = client.commits(&project, CommitsOptions::default()).await;
+        let first_hash = commits
+            .as_ref()
+            .ok()
+            .and_then(|c| c.data.first())
+            .map(|c| c.hash.clone());
+        report("commits", commits, failures).await;
+
+        if let Some(hash) = first_hash {
+            report(
+                "commit",
+                client
+                    .commit(&project, &hash, waka::CommitOptions::default())
+                    .await,
+                failures,
+            )
+            .await;
+        } else {
+            println!("SKIP  commit: no commits found");
+        }
     } else {
         println!("SKIP  commits: no projects found");
     }
