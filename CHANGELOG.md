@@ -36,6 +36,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Error displays include the API's error messages.
 - Mocked integration test suite covering every endpoint and error path.
 
+### Fixed
+
+- User-provided URL path parameters (project names, commit hashes, org and
+  dashboard identifiers, …) are now percent-encoded, so values containing
+  `/`, `?`, `#`, spaces, or other special characters produce correct
+  request URLs.
+
 ### Changed
 
 - **Breaking:** upgraded reqwest to 0.13, whose types appear in the public
@@ -46,6 +53,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   singular error body form.
 - The commits list deserializes the live API's `commits` key as well as
   the documented `data` key.
+- **Breaking:** standardized numeric model types: `total_seconds`,
+  `percent`, and fractional `seconds` fields are now `f64` (previously
+  `f32` in the summaries and all-time models), and the `minutes`/`seconds`
+  clock fields are now `u32` (previously `u8`).
+- All public items now carry documentation; the crate denies
+  `missing_docs`.
 - Upgraded to Rust edition 2024; MSRV is 1.86.
 
 ## [0.1.0] - 2023-07-09

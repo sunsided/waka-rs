@@ -46,6 +46,13 @@ against mocks only; their request shapes follow the developer docs.
 
 ## Usage
 
+Add the dependency:
+
+```toml
+[dependencies]
+waka = "0.2.0"
+```
+
 ```rust
 use std::error::Error;
 use waka::{SummariesOptions, WakaTimeClientBuilder};
