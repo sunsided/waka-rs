@@ -17,6 +17,7 @@ waka = { version = "0.2.1", path = "waka" }
 # Dependencies
 base64 = "0.22"
 clap = { version = "4.5", features = ["derive", "env"] }
+clap_complete = "4.5"
 dotenvy = "0.15.7"
 percent-encoding = "2"
 query-string-builder = "0.7"

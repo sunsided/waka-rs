@@ -279,6 +279,13 @@ pub enum Command {
         #[command(subcommand)]
         command: OrgCommand,
     },
+
+    /// Generate shell completions and print them to stdout
+    Completions {
+        /// The shell to generate completions for
+        #[arg(value_enum)]
+        shell: clap_complete::Shell,
+    },
 }
 
 /// Subcommands for heartbeats.

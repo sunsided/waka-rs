@@ -13,7 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   endpoint of the library, with `.env` support (dotenvy), environment
   variable configuration (`WAKATIME_API_KEY`, `WAKATIME_BEARER_TOKEN`,
   `WAKATIME_USER`, `WAKATIME_BASE_URL`, `WAKATIME_TIMEOUT`), human-readable
-  output by default and a `--json` flag for raw API responses.
+  output by default and a `--json` flag for raw API responses. Shell
+  completions are available via the `completions` subcommand.
 
 ### Changed
 

@@ -73,6 +73,22 @@ waka-cli data-dumps create daily
 Run `waka-cli --help` for the full list of subcommands, and
 `waka-cli <command> --help` for the options of each command.
 
+## Shell completions
+
+Generate completions for your shell with the `completions` subcommand
+(supported: `bash`, `zsh`, `fish`, `elvish`, `powershell`):
+
+```sh
+# bash
+waka-cli completions bash > ~/.local/share/bash-completion/completions/waka-cli
+
+# zsh
+waka-cli completions zsh > ~/.zfunc/_waka-cli
+
+# fish
+waka-cli completions fish > ~/.config/fish/completions/waka-cli.fish
+```
+
 ## JSON output
 
 Every command supports `--json`, which prints the raw API response as

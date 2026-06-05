@@ -4,7 +4,7 @@ mod cli;
 mod human;
 mod output;
 
-use clap::Parser;
+use clap::{CommandFactory, Parser};
 use cli::{
     Cli, Command, CustomRulesCommand, DataDumpsCommand, ExternalDurationsCommand,
     HeartbeatsCommand, OrgCommand,
@@ -73,6 +73,12 @@ fn epoch_now() -> f64 {
 }
 
 async fn run(cli: Cli) -> Result<(), Box<dyn Error>> {
+    // Completions need no API client and must work without credentials.
+    if let Command::Completions { shell } = cli.command {
+        let mut command = Cli::command();
+        clap_complete::generate(shell, &mut command, "waka-cli", &mut std::io::stdout());
+        return Ok(());
+    }
     let client = build_client(&cli)?;
     let json = cli.json;
     match cli.command {
@@ -339,6 +345,9 @@ async fn run(cli: Cli) -> Result<(), Box<dyn Error>> {
         Command::CustomRules { command } => run_custom_rules(&client, json, command).await,
 
         Command::Org { command } => run_org(&client, json, command).await,
+
+        // Handled before the client is built.
+        Command::Completions { .. } => unreachable!(),
     }
 }
 
