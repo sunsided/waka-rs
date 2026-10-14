@@ -26,13 +26,16 @@ pub enum ApiError {
     /// The response body did not match the expected format.
     #[error("The API returned an unexpected format: {0}")]
     InvalidFormat(reqwest::Error),
-    /// Authentication failed (HTTP 401); check the API key.
+    /// Authentication failed (HTTP 401). The credentials are invalid or revoked,
+    /// or an API key was used for reading data; API keys are write-only, so
+    /// reads require an OAuth 2.0 access token.
     #[error("Authorization failed{}", fmt_errors(.0))]
     Unauthorized(Option<ErrorsResponse>),
     /// The requested resource requires a paid plan (HTTP 402).
     #[error("Payment required{}", fmt_errors(.0))]
     PaymentRequired(Option<ErrorsResponse>),
-    /// Access to the requested resource is forbidden (HTTP 403).
+    /// Access to the requested resource is forbidden (HTTP 403), e.g. because
+    /// the OAuth token lacks the required scope.
     #[error("Access forbidden{}", fmt_errors(.0))]
     Forbidden(Option<ErrorsResponse>),
     /// The requested resource does not exist (HTTP 404).

@@ -4,15 +4,18 @@
 //! documented endpoint: coding statistics, summaries, durations, heartbeats,
 //! goals, insights, leaderboards, organizations, and the write operations.
 //!
-//! Authenticate with an API key ([`WakaTimeClientBuilder::new_with_api_key`])
-//! or an OAuth 2.0 access token ([`WakaTimeClientBuilder::new_with_bearer_token`]).
+//! Authenticate with an OAuth 2.0 access token
+//! ([`WakaTimeClientBuilder::new_with_bearer_token`]; see the [`oauth`] module
+//! for obtaining one) or an API key ([`WakaTimeClientBuilder::new_with_api_key`]).
+//! WakaTime API keys are write-only: they can send heartbeats, but reading
+//! data requires an OAuth token.
 //!
 //! ```no_run
 //! use waka::{SummariesOptions, WakaTimeClientBuilder};
 //!
 //! # async fn test() -> Result<(), Box<dyn std::error::Error>> {
-//! let api_key = std::env::var("WAKATIME_API_KEY")?;
-//! let client = WakaTimeClientBuilder::new_with_api_key(api_key)
+//! let token = std::env::var("WAKATIME_BEARER_TOKEN")?;
+//! let client = WakaTimeClientBuilder::new_with_bearer_token(token)
 //!     .with_user("current")
 //!     .build()?;
 //!
@@ -29,6 +32,7 @@
 mod api_error;
 mod builder_error;
 pub mod model;
+pub mod oauth;
 
 pub use crate::api_error::ApiError;
 pub use crate::builder_error::BuilderError;
@@ -79,6 +83,9 @@ pub struct WakaTimeClientBuilder {
 impl WakaTimeClientBuilder {
     /// Authenticates with an API key using HTTP Basic auth.
     /// See [wakatime.com/api-key](https://wakatime.com/api-key).
+    ///
+    /// API keys are write-only: they can send heartbeats and external
+    /// durations, but reading data requires an OAuth 2.0 access token.
     pub fn new_with_api_key<S: AsRef<str>>(api_key: S) -> Self {
         Self {
             auth_header: format!(
@@ -96,6 +103,12 @@ impl WakaTimeClientBuilder {
             auth_header: format!("Bearer {token}", token = token.as_ref()),
             ..Default::default()
         }
+    }
+
+    /// Authenticates with an OAuth 2.0 token obtained via [`oauth::OAuthClient`],
+    /// using its access token as Bearer auth.
+    pub fn new_with_oauth_token(token: &oauth::Token) -> Self {
+        Self::new_with_bearer_token(&token.access_token)
     }
 
     /// Specifies a user to focus on. If unspecified, `current` is used.
