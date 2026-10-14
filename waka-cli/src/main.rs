@@ -21,12 +21,20 @@ use std::io::Read;
 use std::path::Path;
 use waka::{WakaTimeClient, model};
 
-#[tokio::main]
-async fn main() {
-    if let Err(e) = dotenv::load() {
+fn main() {
+    // SAFETY: still single-threaded; the runtime is only started below.
+    if let Err(e) = unsafe { dotenv::load() } {
         eprintln!("error: {e}");
         std::process::exit(1);
     }
+    tokio::runtime::Builder::new_multi_thread()
+        .enable_all()
+        .build()
+        .expect("failed to start the async runtime")
+        .block_on(async_main());
+}
+
+async fn async_main() {
     let matches = Cli::command().get_matches();
     let cli = Cli::from_arg_matches(&matches).unwrap_or_else(|e| e.exit());
     // An API key from the environment ranks below a stored OAuth token; see `Credential::resolve`.

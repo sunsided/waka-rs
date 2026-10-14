@@ -90,11 +90,13 @@ write-only key in `.env` doesn't shadow a sign-in.
 
 ### Environment variables
 
-A `.env` file may set credentials and settings, but not `WAKATIME_BASE_URL`,
-`WAKATIME_CREDENTIALS_FILE` or `WAKATIME_REDIRECT_URI`: `waka-cli` refuses to
-run if it does. These decide where credentials are sent, and `.env` is read
-from the working directory, which may be an untrusted checkout. Set them in
-the shell environment or pass the flag instead.
+`.env` is read from the working directory, which may be an untrusted
+checkout, so `waka-cli` only takes `WAKATIME_API_KEY`, `WAKATIME_BEARER_TOKEN`,
+`WAKATIME_CLIENT_ID`, `WAKATIME_CLIENT_SECRET`, `WAKATIME_USER` and
+`WAKATIME_TIMEOUT` from it and ignores all other variables (such as proxy
+settings). It refuses to run if `.env` sets `WAKATIME_BASE_URL`,
+`WAKATIME_CREDENTIALS_FILE` or `WAKATIME_REDIRECT_URI`, which decide where
+credentials are sent; set those in the shell environment or pass the flag.
 
 | Variable | Flag | Description |
 |---|---|---|
