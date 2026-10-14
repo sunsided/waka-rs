@@ -6,7 +6,7 @@ members = ["waka", "waka-cli"]
 authors = ["Markus Mayer"]
 version = "0.2.1"
 edition = "2024"
-rust-version = "1.87"
+rust-version = "1.88"
 license = "EUPL-1.2"
 repository = "https://github.com/sunsided/waka-rs"
 
@@ -21,7 +21,7 @@ clap_complete = "4.5"
 dirs = "6"
 dotenvy = "0.15.7"
 getrandom = "0.3"
-keyring = { version = "3.6", features = ["apple-native", "windows-native", "async-secret-service", "crypto-rust", "tokio"] }
+keyring = "4.2"
 percent-encoding = "2"
 query-string-builder = "0.7"
 reqwest = { version = "0.13", features = ["form", "json"] }

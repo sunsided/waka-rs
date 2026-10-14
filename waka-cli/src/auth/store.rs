@@ -73,10 +73,10 @@ impl Store {
                     Ok(None) => None,
                     Err(e) => Some(e),
                 };
-                if let Some(path) = fallback {
-                    if let Some(credentials) = read_file(path)? {
-                        return Ok(Some((credentials, Store::File(path.clone()))));
-                    }
+                if let Some(path) = fallback
+                    && let Some(credentials) = read_file(path)?
+                {
+                    return Ok(Some((credentials, Store::File(path.clone()))));
                 }
                 // Only worth mentioning if the credentials might be in there.
                 if let Some(e) = keyring_error {
@@ -139,8 +139,8 @@ impl Store {
     }
 }
 
-/// Runs a keyring operation off the async runtime, since the Secret Service
-/// backend blocks on its own D-Bus calls.
+/// Runs a keyring operation off the async runtime, since the platform
+/// stores block, e.g. on D-Bus calls to the Secret Service.
 async fn blocking<T, F>(f: F) -> Result<T, Box<dyn Error>>
 where
     T: Send + 'static,

@@ -41,6 +41,7 @@ WakaTime API keys are write-only; reading data requires OAuth 2.0.
   flag, stored OAuth token, then `WAKATIME_API_KEY` from the environment.
   A write-only key in `.env` no longer shadows a sign-in.
 - Enabled reqwest's `form` feature.
+- MSRV raised to 1.88, as required by `keyring` 4.
 
 ## [0.2.1] - 2026-06-05
 
