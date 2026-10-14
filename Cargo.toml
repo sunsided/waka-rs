@@ -4,7 +4,7 @@ members = ["waka", "waka-cli"]
 
 [workspace.package]
 authors = ["Markus Mayer"]
-version = "0.2.1"
+version = "0.3.0"
 edition = "2024"
 rust-version = "1.88"
 license = "EUPL-1.2"
@@ -12,7 +12,7 @@ repository = "https://github.com/sunsided/waka-rs"
 
 [workspace.dependencies]
 # Workspace crates
-waka = { version = "0.2.1", path = "waka" }
+waka = { version = "0.3.0", path = "waka" }
 
 # Dependencies
 base64 = "0.22"
