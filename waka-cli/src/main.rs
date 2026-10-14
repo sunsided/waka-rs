@@ -27,8 +27,10 @@ async fn main() {
     let cli = Cli::from_arg_matches(&matches).unwrap_or_else(|e| e.exit());
     // An API key from the environment ranks below a stored OAuth token; see `Credential::resolve`.
     let api_key_explicit = matches.value_source("api_key") == Some(ValueSource::CommandLine);
-    if let Err(e) = run(cli, api_key_explicit).await {
-        eprintln!("error: {e}");
+    let base_url_explicit = matches.value_source("base_url") == Some(ValueSource::CommandLine);
+    if let Err(e) = run(cli, api_key_explicit, base_url_explicit).await {
+        // Error messages can contain text from the API or a redirect.
+        eprintln!("error: {}", output::sanitize_lines(&e.to_string(), true));
         std::process::exit(1);
     }
 }
@@ -69,7 +71,11 @@ fn epoch_now() -> f64 {
         .unwrap_or_default()
 }
 
-async fn run(cli: Cli, api_key_explicit: bool) -> Result<(), Box<dyn Error>> {
+async fn run(
+    cli: Cli,
+    api_key_explicit: bool,
+    base_url_explicit: bool,
+) -> Result<(), Box<dyn Error>> {
     let sources = CredentialSources {
         bearer_token: cli.bearer_token.as_deref(),
         api_key: cli.api_key.as_deref(),
@@ -88,6 +94,7 @@ async fn run(cli: Cli, api_key_explicit: bool) -> Result<(), Box<dyn Error>> {
         }
         _ => {
             let credential = Credential::resolve(sources, &store).await?;
+            credential.check_base_url(cli.base_url.as_deref(), base_url_explicit)?;
             let client = build_client(&cli, &credential)?;
             run_command(&client, cli.json, cli.command)
                 .await

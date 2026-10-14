@@ -1,5 +1,6 @@
 //! Receiving the authorization code: via a local HTTP listener, or pasted by the user.
 
+use crate::output::sanitize;
 use std::error::Error;
 use std::net::SocketAddr;
 use std::time::Duration;
@@ -19,6 +20,7 @@ pub enum Callback {
     Denied {
         error: String,
         description: Option<String>,
+        state: Option<String>,
     },
 }
 
@@ -39,7 +41,11 @@ impl Callback {
             }
         }
         match (code, error) {
-            (_, Some(error)) => Ok(Callback::Denied { error, description }),
+            (_, Some(error)) => Ok(Callback::Denied {
+                error,
+                description,
+                state,
+            }),
             (Some(code), None) if !code.is_empty() => Ok(Callback::Code { code, state }),
             _ => Err("the redirect contains neither a code nor an error".into()),
         }
@@ -70,6 +76,16 @@ impl Callback {
         })
     }
 
+    /// Whether the callback carries the given state.
+    pub fn has_state(&self, expected_state: &str) -> bool {
+        let state = match self {
+            Callback::Code { state, .. } | Callback::Denied { state, .. } => state,
+        };
+        state
+            .as_deref()
+            .is_some_and(|state| constant_time_eq(state.as_bytes(), expected_state.as_bytes()))
+    }
+
     /// Returns the code if the user approved and the state matches.
     ///
     /// A missing state is accepted only when `allow_missing_state` is set,
@@ -79,23 +95,26 @@ impl Callback {
         expected_state: &str,
         allow_missing_state: bool,
     ) -> Result<String, Box<dyn Error>> {
+        let state_ok = self.has_state(expected_state);
         match self {
-            Callback::Denied { error, description } => Err(match description {
-                Some(description) => format!("authorization failed: {error}: {description}"),
-                None => format!("authorization failed: {error}"),
+            Callback::Code { state: None, code } if allow_missing_state => Ok(code),
+            Callback::Code { code, .. } if state_ok => Ok(code),
+            // Without a matching state, a denial may be forged as well; still
+            // report it, since nothing is exchanged either way.
+            Callback::Denied {
+                error, description, ..
+            } => Err(match description {
+                Some(description) => format!(
+                    "authorization failed: {}: {}",
+                    sanitize(&error),
+                    sanitize(&description)
+                ),
+                None => format!("authorization failed: {}", sanitize(&error)),
             }
             .into()),
-            Callback::Code { code, state } => match state {
-                Some(state) if constant_time_eq(state.as_bytes(), expected_state.as_bytes()) => {
-                    Ok(code)
-                }
-                None if allow_missing_state => Ok(code),
-                _ => Err(
-                    "the state parameter does not match; the redirect did not come \
-                          from this sign-in attempt"
-                        .into(),
-                ),
-            },
+            Callback::Code { .. } => Err("the state parameter does not match; the redirect did \
+                                          not come from this sign-in attempt"
+                .into()),
         }
     }
 }
@@ -151,9 +170,18 @@ impl CallbackListener {
         self.listener.local_addr().expect("listener has an address")
     }
 
-    /// Waits for a request to the redirect path, answers it, and returns its parameters.
+    /// Waits for a request to the redirect path carrying `expected_state`,
+    /// answers it, and returns its parameters.
+    ///
     /// Requests to other paths, like a browser's favicon request, get a 404.
-    pub async fn wait(self, timeout: Duration) -> Result<Callback, Box<dyn Error>> {
+    /// Redirects with a missing or different state get a 400 and are ignored,
+    /// so another local process or web page cannot abort the sign-in by
+    /// sending a forged redirect first.
+    pub async fn wait(
+        self,
+        timeout: Duration,
+        expected_state: &str,
+    ) -> Result<Callback, Box<dyn Error>> {
         tokio::time::timeout(timeout, async {
             loop {
                 let (mut stream, _) = self.listener.accept().await?;
@@ -175,6 +203,14 @@ impl CallbackListener {
                     }
                 };
                 match Callback::from_url(&url) {
+                    Ok(callback) if !callback.has_state(expected_state) => {
+                        respond(
+                            &mut stream,
+                            "400 Bad Request",
+                            "This redirect does not belong to the current sign-in.",
+                        )
+                        .await;
+                    }
                     Ok(callback @ Callback::Code { .. }) => {
                         respond(
                             &mut stream,
@@ -278,7 +314,8 @@ mod tests {
             callback
                 == Callback::Denied {
                     error: "access_denied".into(),
-                    description: Some("User declined".into())
+                    description: Some("User declined".into()),
+                    state: None,
                 }
         );
     }
@@ -336,11 +373,42 @@ mod tests {
         let result = Callback::Denied {
             error: "access_denied".into(),
             description: None,
+            state: Some("s".into()),
+        }
+        .into_code("s", false);
+
+        assert!(let Err(e) = result);
+        check!(e.to_string() == "authorization failed: access_denied");
+    }
+
+    #[test]
+    fn into_code_strips_terminal_escapes_from_denials() {
+        let result = Callback::Denied {
+            error: "x\u{1b}]0;pwned\u{7}".into(),
+            description: Some("line\r\nfake: ok\u{1b}[2J".into()),
+            state: None,
         }
         .into_code("s", true);
 
         assert!(let Err(e) = result);
-        check!(e.to_string() == "authorization failed: access_denied");
+        let message = e.to_string();
+        check!(!message.chars().any(char::is_control));
+        check!(
+            message
+                == "authorization failed: x\u{fffd}]0;pwned\u{fffd}: line\u{fffd}\u{fffd}fake: ok\u{fffd}[2J"
+        );
+    }
+
+    #[test]
+    fn has_state_requires_an_exact_match() {
+        let code = |state: Option<&str>| Callback::Code {
+            code: "c".into(),
+            state: state.map(Into::into),
+        };
+        check!(code(Some("s")).has_state("s"));
+        check!(!code(Some("s2")).has_state("s"));
+        check!(!code(Some("")).has_state("s"));
+        check!(!code(None).has_state("s"));
     }
 
     #[test]
@@ -411,19 +479,33 @@ mod tests {
         let browser = async {
             let favicon = send(addr, "GET /favicon.ico HTTP/1.1\r\nHost: x\r\n\r\n").await;
             let missing = send(addr, "GET /callback HTTP/1.1\r\nHost: x\r\n\r\n").await;
+            // Forged redirects without the right state must not end the sign-in.
+            let forged = send(
+                addr,
+                "GET /callback?code=evil&state=wrong HTTP/1.1\r\nHost: x\r\n\r\n",
+            )
+            .await;
+            let forged_denial = send(
+                addr,
+                "GET /callback?error=access_denied HTTP/1.1\r\nHost: x\r\n\r\n",
+            )
+            .await;
             let ok = send(
                 addr,
                 "GET /callback?code=the-code&state=s HTTP/1.1\r\nHost: x\r\n\r\n",
             )
             .await;
-            (favicon, missing, ok)
+            (favicon, missing, forged, forged_denial, ok)
         };
 
-        let (callback, (favicon, missing, ok)) =
-            tokio::join!(listener.wait(Duration::from_secs(10)), browser);
+        let (callback, (favicon, missing, forged, forged_denial, ok)) =
+            tokio::join!(listener.wait(Duration::from_secs(10), "s"), browser);
 
         check!(favicon.starts_with("HTTP/1.1 404 Not Found"));
         check!(missing.starts_with("HTTP/1.1 400 Bad Request"));
+        check!(forged.starts_with("HTTP/1.1 400 Bad Request"));
+        check!(forged.contains("does not belong to the current sign-in"));
+        check!(forged_denial.starts_with("HTTP/1.1 400 Bad Request"));
         check!(ok.starts_with("HTTP/1.1 200 OK"));
         check!(ok.contains("You can close this tab"));
         let callback = callback.unwrap();
@@ -447,25 +529,26 @@ mod tests {
             send(addr, "POST /callback HTTP/1.1\r\n\r\n").await;
             send(
                 addr,
-                "GET /callback?error=access_denied HTTP/1.1\r\nHost: x\r\n\r\n",
+                "GET /callback?error=access_denied&state=s HTTP/1.1\r\nHost: x\r\n\r\n",
             )
             .await;
         };
 
-        let (callback, ()) = tokio::join!(listener.wait(Duration::from_secs(10)), browser);
+        let (callback, ()) = tokio::join!(listener.wait(Duration::from_secs(10), "s"), browser);
         let callback = callback.unwrap();
         check!(
             callback
                 == Callback::Denied {
                     error: "access_denied".into(),
-                    description: None
+                    description: None,
+                    state: Some("s".into()),
                 }
         );
     }
 
     #[tokio::test]
     async fn listener_times_out() {
-        let result = listener().await.wait(Duration::from_millis(50)).await;
+        let result = listener().await.wait(Duration::from_millis(50), "s").await;
 
         assert!(let Err(e) = result);
         check!(e.to_string().contains("timed out"));

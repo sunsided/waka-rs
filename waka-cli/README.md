@@ -99,7 +99,7 @@ write-only key in `.env` doesn't shadow a sign-in.
 | `WAKATIME_REDIRECT_URI` | `auth login --redirect-uri` | Redirect URI; defaults to `http://127.0.0.1:8737/callback` |
 | `WAKATIME_CREDENTIALS_FILE` | `--credentials-file` | Store the OAuth token in this file instead of the OS keyring |
 | `WAKATIME_USER` | `--user` | The user to query; defaults to `current` |
-| `WAKATIME_BASE_URL` | `--base-url` | Override the API base URL |
+| `WAKATIME_BASE_URL` | `--base-url` | Override the API base URL; the stored OAuth token is only sent to a base URL given as a flag |
 | `WAKATIME_TIMEOUT` | `--timeout` | Request timeout in seconds |
 
 ## Usage
