@@ -28,8 +28,9 @@ WakaTime API keys are write-only; reading data requires OAuth 2.0.
 - `waka-cli` adds a hint to authentication errors, e.g. that an API key
   can't read data.
 - `waka-cli` hardening:
-  - The stored OAuth token is never sent to a base URL that comes from
-    the environment or a `.env` file; only `--base-url` overrides it.
+  - A `.env` file may no longer set `WAKATIME_BASE_URL`,
+    `WAKATIME_CREDENTIALS_FILE` or `WAKATIME_REDIRECT_URI`, since it may
+    come from an untrusted directory; `waka-cli` refuses to run instead.
   - The login listener ignores redirects without the matching `state`.
   - Control characters are stripped from printed errors and token
     details.

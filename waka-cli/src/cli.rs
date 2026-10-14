@@ -38,9 +38,8 @@ pub struct Cli {
     #[arg(long, env = "WAKATIME_CREDENTIALS_FILE", global = true)]
     pub credentials_file: Option<PathBuf>,
 
-    /// Override the OAuth base URL, e.g. for a mock server. Deliberately not
-    /// read from the environment, since a `.env` file in an untrusted directory
-    /// could otherwise send the client secret and refresh token elsewhere.
+    /// Override the OAuth base URL, e.g. for a mock server. Testing aid only,
+    /// so it is not read from the environment at all.
     #[arg(long, global = true, hide = true)]
     pub oauth_base_url: Option<String>,
 

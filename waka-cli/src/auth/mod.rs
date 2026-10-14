@@ -65,27 +65,6 @@ impl Credential {
         )
     }
 
-    /// Refuses to send a stored OAuth token to a base URL that did not come
-    /// from the command line.
-    ///
-    /// The base URL can be set in the environment, including a `.env` file in
-    /// the working directory; running in an untrusted directory must not
-    /// leak the token from the keyring to another server.
-    pub fn check_base_url(
-        &self,
-        base_url: Option<&str>,
-        from_command_line: bool,
-    ) -> Result<(), Box<dyn Error>> {
-        match (self, base_url) {
-            (Credential::OAuth(..), Some(base_url)) if !from_command_line => Err(format!(
-                "refusing to send the stored OAuth token to {base_url} from WAKATIME_BASE_URL \
-                 (possibly from a .env file); pass --base-url to use it"
-            )
-            .into()),
-            _ => Ok(()),
-        }
-    }
-
     /// The client builder authenticating with these credentials.
     pub fn builder(&self) -> waka::WakaTimeClientBuilder {
         match self {
@@ -455,41 +434,6 @@ mod tests {
         check!(token.hint(forbidden.as_ref()).unwrap().contains("scope"));
         check!(token.hint(not_found.as_ref()).is_none());
         check!(token.hint(other.as_ref()).is_none());
-    }
-
-    #[tokio::test]
-    async fn stored_token_is_not_sent_to_a_base_url_from_the_environment() {
-        let (_dir, store) = file_store(true).await;
-        let stored = Credential::resolve(CredentialSources::default(), &store)
-            .await
-            .unwrap();
-        let api_key = Credential::ApiKey("key".into());
-        let token = Credential::BearerToken("bt".into());
-
-        let result = stored.check_base_url(Some("https://evil.example/"), false);
-        assert!(let Err(e) = result);
-        check!(
-            e.to_string()
-                .contains("refusing to send the stored OAuth token")
-        );
-
-        check!(
-            stored
-                .check_base_url(Some("http://127.0.0.1:9/"), true)
-                .is_ok()
-        );
-        check!(stored.check_base_url(None, false).is_ok());
-        // Credentials from the environment travel with the environment's base URL.
-        check!(
-            api_key
-                .check_base_url(Some("https://other.example/"), false)
-                .is_ok()
-        );
-        check!(
-            token
-                .check_base_url(Some("https://other.example/"), false)
-                .is_ok()
-        );
     }
 
     #[test]
