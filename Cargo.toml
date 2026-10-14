@@ -18,7 +18,10 @@ waka = { version = "0.2.1", path = "waka" }
 base64 = "0.22"
 clap = { version = "4.5", features = ["derive", "env"] }
 clap_complete = "4.5"
+dirs = "6"
 dotenvy = "0.15.7"
+getrandom = "0.3"
+keyring = { version = "3.6", features = ["apple-native", "windows-native", "async-secret-service", "crypto-rust", "tokio"] }
 percent-encoding = "2"
 query-string-builder = "0.7"
 reqwest = { version = "0.13", features = ["form", "json"] }
@@ -26,7 +29,10 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 thiserror = "2"
 tokio = "1.52.3"
+url = "2.5"
+webbrowser = "1.2"
 
 # Dev dependencies
 assert2 = "0.4"
+tempfile = "3.27"
 wiremock = "0.6"
