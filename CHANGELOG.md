@@ -5,6 +5,47 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+WakaTime API keys are write-only; reading data requires OAuth 2.0.
+
+### Added
+
+- `waka::oauth` module implementing the OAuth 2.0 authorization code flow:
+  - `OAuthClient` builds the authorization URL and exchanges, refreshes and
+    revokes tokens.
+  - `Token` serializes losslessly and redacts its secrets in `Debug`.
+  - `Scope` covers all documented scopes.
+  - `OAuthError` reports failures.
+- `WakaTimeClientBuilder::new_with_oauth_token`.
+- `waka-cli auth login|status|refresh|logout`:
+  - `login` signs in through the browser, receiving the redirect on a local
+    address or pasted with `--manual`.
+  - The token is stored in the OS keyring, with a private file as fallback,
+    or in `--credentials-file`.
+  - Login reads `WAKATIME_CLIENT_ID`, `WAKATIME_CLIENT_SECRET`,
+    `WAKATIME_REDIRECT_URI` and `WAKATIME_CREDENTIALS_FILE`.
+- `waka-cli` adds a hint to authentication errors, e.g. that an API key
+  can't read data.
+- `waka-cli` hardening:
+  - Only `WAKATIME_API_KEY`, `WAKATIME_BEARER_TOKEN`,
+    `WAKATIME_CLIENT_ID`, `WAKATIME_CLIENT_SECRET`, `WAKATIME_USER` and
+    `WAKATIME_TIMEOUT` are loaded from `.env`, which may come from an
+    untrusted directory; other variables there are ignored, and
+    `WAKATIME_BASE_URL`, `WAKATIME_CREDENTIALS_FILE` or
+    `WAKATIME_REDIRECT_URI` make `waka-cli` refuse to run.
+  - The login listener ignores redirects without the matching `state`.
+  - Control characters are stripped from printed errors and token
+    details.
+
+### Changed
+
+- `waka-cli` picks credentials in this order: bearer token, `--api-key`
+  flag, stored OAuth token, then `WAKATIME_API_KEY` from the environment.
+  A write-only key in `.env` no longer shadows a sign-in.
+- Enabled reqwest's `form` feature.
+- MSRV raised to 1.88, as required by `keyring` 4.
+
 ## [0.2.1] - 2026-06-05
 
 ### Added

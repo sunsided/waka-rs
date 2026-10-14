@@ -1,0 +1,9 @@
+{
+  "access_token": "waka_tok_access",
+  "refresh_token": "waka_ref_refresh",
+  "token_type": "bearer",
+  "scope": "email read_stats read_summaries",
+  "uid": "5b3e4a8f-0000-4000-8000-000000000000",
+  "expires_in": 3153600000,
+  "expires_at": "2126-09-20T10:06:17Z"
+}

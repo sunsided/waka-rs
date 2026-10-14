@@ -45,9 +45,13 @@ This repository is a workspace containing two crates:
 - [User Agents](https://wakatime.com/developers#user_agents) — `user_agents`
 - [Users](https://wakatime.com/developers#users) — `user`
 
-Authentication works with an API key (`new_with_api_key`) or an OAuth 2.0
-access token (`new_with_bearer_token`). The write endpoints are tested
-against mocks only; their request shapes follow the developer docs.
+Authentication works with an OAuth 2.0 access token (`new_with_bearer_token`,
+`new_with_oauth_token`) or an API key (`new_with_api_key`). WakaTime API keys
+are write-only: they can send heartbeats, but reading data requires an OAuth
+token. The `oauth` module implements the authorization code flow
+(`OAuthClient`: authorization URL, code exchange, refresh, revoke). The write
+endpoints are tested against mocks only; their request shapes follow the
+developer docs.
 
 ## Usage
 
@@ -81,3 +85,30 @@ pub async fn main() -> Result<(), Box<dyn Error>> {
 ```
 
 See [examples/example.rs](examples/example.rs) for all supported endpoints.
+
+### OAuth 2.0
+
+Register an app at [wakatime.com/apps](https://wakatime.com/apps) and add your
+redirect URI to its authorized redirect URLs. Then send the user to the
+authorization URL and exchange the `code` WakaTime redirects back with:
+
+```rust
+use waka::WakaTimeClientBuilder;
+use waka::oauth::{AuthorizeOptions, OAuthClient, Scope};
+
+let oauth = OAuthClient::new("client-id", "client-secret", "https://example.com/callback")?;
+let url = oauth.authorize_url(AuthorizeOptions {
+    scopes: &[Scope::ReadStats, Scope::ReadSummaries],
+    state: Some("an-unguessable-value"),
+    ..Default::default()
+});
+// … redirect the user to `url`; WakaTime redirects back with `code` and `state` …
+
+let token = oauth.exchange_code(code).await?;
+let client = WakaTimeClientBuilder::new_with_oauth_token(&token).build()?;
+```
+
+`Token` serializes losslessly for storage; `OAuthClient::refresh` and
+`OAuthClient::revoke` take its refresh and access tokens. WakaTime keeps at
+most 8 active tokens per app and user, revoking the oldest on the 9th sign-in.
+See [examples/oauth.rs](examples/oauth.rs) for a complete flow.

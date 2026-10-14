@@ -38,6 +38,6 @@ jobs:
     - uses: actions/checkout@v4
     - uses: dtolnay/rust-toolchain@master
       with:
-        toolchain: "1.87"
+        toolchain: "1.88"
     - name: Build with MSRV
       run: cargo build --verbose

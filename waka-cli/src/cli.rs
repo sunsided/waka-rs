@@ -7,7 +7,8 @@ use std::path::PathBuf;
 #[derive(Debug, Parser)]
 #[command(name = "waka-cli", version, about, propagate_version = true)]
 pub struct Cli {
-    /// WakaTime API key; see <https://wakatime.com/api-key>
+    /// WakaTime API key; write-only, so reading data needs `auth login` instead.
+    /// See <https://wakatime.com/api-key>
     #[arg(long, env = "WAKATIME_API_KEY", global = true, hide_env_values = true)]
     pub api_key: Option<String>,
 
@@ -32,6 +33,15 @@ pub struct Cli {
     /// Request timeout in seconds
     #[arg(long, env = "WAKATIME_TIMEOUT", global = true)]
     pub timeout: Option<u64>,
+
+    /// Store OAuth credentials in this file instead of the OS keyring
+    #[arg(long, env = "WAKATIME_CREDENTIALS_FILE", global = true)]
+    pub credentials_file: Option<PathBuf>,
+
+    /// Override the OAuth base URL, e.g. for a mock server. Testing aid only,
+    /// so it is not read from the environment at all.
+    #[arg(long, global = true, hide = true)]
+    pub oauth_base_url: Option<String>,
 
     /// Print the raw API response as JSON to stdout
     #[arg(long, global = true)]
@@ -280,12 +290,60 @@ pub enum Command {
         command: OrgCommand,
     },
 
+    /// Sign in with OAuth 2.0 and manage the stored token
+    Auth {
+        #[command(subcommand)]
+        command: AuthCommand,
+    },
+
     /// Generate shell completions and print them to stdout
     Completions {
         /// The shell to generate completions for
         #[arg(value_enum)]
         shell: clap_complete::Shell,
     },
+}
+
+/// The redirect URI used when none is given; register it in your app's settings.
+pub const DEFAULT_REDIRECT_URI: &str = "http://127.0.0.1:8737/callback";
+
+/// The scopes requested when none are given: read access to everything.
+pub const DEFAULT_SCOPES: &str = "read_summaries,read_stats,read_goals,read_heartbeats,read_orgs,read_private_leaderboards,email";
+
+/// Subcommands for OAuth sign-in.
+#[derive(Debug, Subcommand)]
+pub enum AuthCommand {
+    /// Sign in via the browser and store the OAuth token
+    Login {
+        /// Client ID of your app; create one at <https://wakatime.com/apps>
+        #[arg(long, env = "WAKATIME_CLIENT_ID")]
+        client_id: String,
+        /// Client secret of your app
+        #[arg(long, env = "WAKATIME_CLIENT_SECRET", hide_env_values = true)]
+        client_secret: String,
+        /// Redirect URI; must be an authorized redirect URL of your app
+        #[arg(long, env = "WAKATIME_REDIRECT_URI", default_value = DEFAULT_REDIRECT_URI)]
+        redirect_uri: String,
+        /// Scopes to request, comma-separated or repeated, e.g. read_stats,write_heartbeats
+        #[arg(long = "scope", value_delimiter = ',', default_value = DEFAULT_SCOPES)]
+        scopes: Vec<waka::oauth::Scope>,
+        /// Print the sign-in URL instead of opening a browser
+        #[arg(long)]
+        no_browser: bool,
+        /// Paste the redirected URL or code instead of listening for the redirect,
+        /// e.g. on a remote machine or with a non-local redirect URI
+        #[arg(long)]
+        manual: bool,
+        /// Ask for approval again, even if the app was approved before
+        #[arg(long)]
+        force_approve: bool,
+    },
+    /// Show the stored OAuth token and which credentials are in use
+    Status,
+    /// Replace the stored access token using its refresh token
+    Refresh,
+    /// Revoke the stored OAuth token and delete it
+    Logout,
 }
 
 /// Subcommands for heartbeats.

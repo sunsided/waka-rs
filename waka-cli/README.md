@@ -27,30 +27,85 @@ ships archives (with SHA-256 checksums) for
 
 ## Authentication
 
-Get your API key from [wakatime.com/api-key](https://wakatime.com/api-key) and provide
-it via a flag, an environment variable, or a `.env` file in the working directory:
+WakaTime API keys are **write-only**: they can send heartbeats, but reading
+stats, summaries and everything else requires signing in with OAuth 2.0.
+
+### Signing in with OAuth
+
+WakaTime needs a client secret for the sign-in and doesn't support PKCE, so
+`waka-cli` can't ship shared app credentials. Register your own app once:
+
+1. Create an app at [wakatime.com/apps](https://wakatime.com/apps).
+2. Add `http://127.0.0.1:8737/callback` to its authorized redirect URLs.
+3. Copy its App ID and App Secret.
+
+Then sign in:
 
 ```sh
-# flag
-waka-cli --api-key 'waka_…' user
-
-# environment
-export WAKATIME_API_KEY='waka_…'
-waka-cli user
-
-# .env file
-echo "WAKATIME_API_KEY=waka_…" > .env
-waka-cli user
+export WAKATIME_CLIENT_ID='…'      # App ID
+export WAKATIME_CLIENT_SECRET='…'  # App Secret
+waka-cli auth login
 ```
 
-OAuth 2.0 access tokens are supported via `--bearer-token` / `WAKATIME_BEARER_TOKEN`.
+This opens the browser, waits for WakaTime to redirect back to the local
+address, and stores the token with the app credentials in the OS keyring
+(Keychain, Credential Manager, or Secret Service). Where no keyring is
+available it falls back to `credentials.json` in the user's config directory
+(e.g. `~/.config/waka-cli/`), readable only by you. Use `--credentials-file`
+(`WAKATIME_CREDENTIALS_FILE`) to always use a specific file.
+
+```sh
+waka-cli auth status    # which credentials are in use; the stored token's scopes
+waka-cli auth refresh   # replace the access token using the refresh token
+waka-cli auth logout    # revoke the token and delete it
+```
+
+- **Scopes:** by default, `login` requests read access to everything
+  (`read_summaries,read_stats,read_goals,read_heartbeats,read_orgs,read_private_leaderboards,email`).
+  Pick others with `--scope`, e.g. `--scope read_stats,write_heartbeats`.
+- **Remote machines:** with `--manual`, paste the URL you were redirected to
+  (or just the code) instead of having `waka-cli` listen for the redirect.
+  This also works with a non-local `--redirect-uri`, such as
+  `https://wakatime.com/oauth/test`, if you add it to your app.
+- **Token limit:** WakaTime keeps at most 8 active tokens per app and user;
+  a 9th sign-in revokes the oldest.
+
+### API keys and tokens
+
+An API key ([wakatime.com/api-key](https://wakatime.com/api-key)) still works
+for sending heartbeats. An existing OAuth access token can be passed directly.
+Both are given via a flag, an environment variable, or a `.env` file in the
+working directory:
+
+```sh
+waka-cli --api-key 'waka_…' heartbeats send …
+echo "WAKATIME_API_KEY=waka_…" > .env
+waka-cli --bearer-token 'waka_tok_…' stats last_7_days
+```
+
+Credentials are picked in this order: `--bearer-token` / `WAKATIME_BEARER_TOKEN`,
+then `--api-key` passed as a flag, then the token stored by `auth login`, and
+finally `WAKATIME_API_KEY` from the environment or `.env`. That way a
+write-only key in `.env` doesn't shadow a sign-in.
 
 ### Environment variables
 
+`.env` is read from the working directory, which may be an untrusted
+checkout, so `waka-cli` only takes `WAKATIME_API_KEY`, `WAKATIME_BEARER_TOKEN`,
+`WAKATIME_CLIENT_ID`, `WAKATIME_CLIENT_SECRET`, `WAKATIME_USER` and
+`WAKATIME_TIMEOUT` from it and ignores all other variables (such as proxy
+settings). It refuses to run if `.env` sets `WAKATIME_BASE_URL`,
+`WAKATIME_CREDENTIALS_FILE` or `WAKATIME_REDIRECT_URI`, which decide where
+credentials are sent; set those in the shell environment or pass the flag.
+
 | Variable | Flag | Description |
 |---|---|---|
-| `WAKATIME_API_KEY` | `--api-key` | API key, sent as HTTP Basic auth |
+| `WAKATIME_API_KEY` | `--api-key` | API key, sent as HTTP Basic auth; write-only |
 | `WAKATIME_BEARER_TOKEN` | `--bearer-token` | OAuth 2.0 access token, sent as Bearer auth |
+| `WAKATIME_CLIENT_ID` | `auth login --client-id` | App ID of your OAuth app |
+| `WAKATIME_CLIENT_SECRET` | `auth login --client-secret` | App secret of your OAuth app |
+| `WAKATIME_REDIRECT_URI` | `auth login --redirect-uri` | Redirect URI; defaults to `http://127.0.0.1:8737/callback` |
+| `WAKATIME_CREDENTIALS_FILE` | `--credentials-file` | Store the OAuth token in this file instead of the OS keyring |
 | `WAKATIME_USER` | `--user` | The user to query; defaults to `current` |
 | `WAKATIME_BASE_URL` | `--base-url` | Override the API base URL |
 | `WAKATIME_TIMEOUT` | `--timeout` | Request timeout in seconds |

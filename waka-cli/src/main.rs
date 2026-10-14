@@ -1,10 +1,15 @@
 //! Command-line client for the WakaTime API.
 
+mod auth;
 mod cli;
+mod dotenv;
 mod human;
 mod output;
 
-use clap::{CommandFactory, Parser};
+use auth::store::Store;
+use auth::{Credential, CredentialSources};
+use clap::parser::ValueSource;
+use clap::{CommandFactory, FromArgMatches};
 use cli::{
     Cli, Command, CustomRulesCommand, DataDumpsCommand, ExternalDurationsCommand,
     HeartbeatsCommand, OrgCommand,
@@ -14,31 +19,36 @@ use serde::de::DeserializeOwned;
 use std::error::Error;
 use std::io::Read;
 use std::path::Path;
-use waka::{WakaTimeClient, WakaTimeClientBuilder, model};
+use waka::{WakaTimeClient, model};
 
-#[tokio::main]
-async fn main() {
-    dotenvy::dotenv().ok();
-    let cli = Cli::parse();
-    if let Err(e) = run(cli).await {
+fn main() {
+    // SAFETY: still single-threaded; the runtime is only started below.
+    if let Err(e) = unsafe { dotenv::load() } {
         eprintln!("error: {e}");
+        std::process::exit(1);
+    }
+    tokio::runtime::Builder::new_multi_thread()
+        .enable_all()
+        .build()
+        .expect("failed to start the async runtime")
+        .block_on(async_main());
+}
+
+async fn async_main() {
+    let matches = Cli::command().get_matches();
+    let cli = Cli::from_arg_matches(&matches).unwrap_or_else(|e| e.exit());
+    // An API key from the environment ranks below a stored OAuth token; see `Credential::resolve`.
+    let api_key_explicit = matches.value_source("api_key") == Some(ValueSource::CommandLine);
+    if let Err(e) = run(cli, api_key_explicit).await {
+        // Error messages can contain text from the API or a redirect.
+        eprintln!("error: {}", output::sanitize_lines(&e.to_string(), true));
         std::process::exit(1);
     }
 }
 
-/// Builds the client from the global arguments.
-fn build_client(cli: &Cli) -> Result<WakaTimeClient, Box<dyn Error>> {
-    let mut builder = match (&cli.api_key, &cli.bearer_token) {
-        (Some(api_key), _) => WakaTimeClientBuilder::new_with_api_key(api_key),
-        (_, Some(token)) => WakaTimeClientBuilder::new_with_bearer_token(token),
-        (None, None) => {
-            return Err(
-                "missing credentials: set --api-key (WAKATIME_API_KEY) or --bearer-token \
-                 (WAKATIME_BEARER_TOKEN), e.g. in a .env file"
-                    .into(),
-            );
-        }
-    };
+/// Builds the client from the global arguments and the given credentials.
+fn build_client(cli: &Cli, credential: &Credential) -> Result<WakaTimeClient, Box<dyn Error>> {
+    let mut builder = credential.builder();
     if let Some(user) = &cli.user {
         builder = builder.with_user(user);
     }
@@ -72,16 +82,42 @@ fn epoch_now() -> f64 {
         .unwrap_or_default()
 }
 
-async fn run(cli: Cli) -> Result<(), Box<dyn Error>> {
-    // Completions need no API client and must work without credentials.
-    if let Command::Completions { shell } = cli.command {
-        let mut command = Cli::command();
-        clap_complete::generate(shell, &mut command, "waka-cli", &mut std::io::stdout());
-        return Ok(());
-    }
-    let client = build_client(&cli)?;
-    let json = cli.json;
+async fn run(cli: Cli, api_key_explicit: bool) -> Result<(), Box<dyn Error>> {
+    let sources = CredentialSources {
+        bearer_token: cli.bearer_token.as_deref(),
+        api_key: cli.api_key.as_deref(),
+        api_key_explicit,
+    };
+    let store = Store::new(cli.credentials_file.as_deref());
     match cli.command {
+        // Completions need no API client and must work without credentials.
+        Command::Completions { shell } => {
+            let mut command = Cli::command();
+            clap_complete::generate(shell, &mut command, "waka-cli", &mut std::io::stdout());
+            Ok(())
+        }
+        Command::Auth { command } => {
+            auth::run(command, sources, &store, cli.oauth_base_url.as_deref()).await
+        }
+        _ => {
+            let credential = Credential::resolve(sources, &store).await?;
+            let client = build_client(&cli, &credential)?;
+            run_command(&client, cli.json, cli.command)
+                .await
+                .map_err(|e| match credential.hint(e.as_ref()) {
+                    Some(hint) => format!("{e}\nhint: {hint}").into(),
+                    None => e,
+                })
+        }
+    }
+}
+
+async fn run_command(
+    client: &WakaTimeClient,
+    json: bool,
+    command: Command,
+) -> Result<(), Box<dyn Error>> {
+    match command {
         Command::User => emit(json, &client.user().await?, human::user),
 
         Command::AllTime { project } => emit(
@@ -334,20 +370,20 @@ async fn run(cli: Cli) -> Result<(), Box<dyn Error>> {
 
         Command::StatusBar => emit(json, &client.status_bar_today().await?, human::status_bar),
 
-        Command::Heartbeats { command } => run_heartbeats(&client, json, command).await,
+        Command::Heartbeats { command } => run_heartbeats(client, json, command).await,
 
         Command::ExternalDurations { command } => {
-            run_external_durations(&client, json, command).await
+            run_external_durations(client, json, command).await
         }
 
-        Command::DataDumps { command } => run_data_dumps(&client, json, command).await,
+        Command::DataDumps { command } => run_data_dumps(client, json, command).await,
 
-        Command::CustomRules { command } => run_custom_rules(&client, json, command).await,
+        Command::CustomRules { command } => run_custom_rules(client, json, command).await,
 
-        Command::Org { command } => run_org(&client, json, command).await,
+        Command::Org { command } => run_org(client, json, command).await,
 
         // Handled before the client is built.
-        Command::Completions { .. } => unreachable!(),
+        Command::Completions { .. } | Command::Auth { .. } => unreachable!(),
     }
 }
 
